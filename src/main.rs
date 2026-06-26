@@ -1,6 +1,23 @@
 use std::env;
+use std::fs;
 use std::path::Path;
 use std::process;
+
+fn traverse_dir(dir: &Path) {
+    println!("Path set to: {}", dir.display());
+
+    for entry in fs::read_dir(dir)? {
+        let entry = entry?;
+        let path = entry.path();
+        let metadata = entry.metadata()?;
+
+        if metadata.is_dir() {
+            println!("Directory: {:?}", path);
+        } else {
+            println!("File: {:?}", path);
+        }
+    }
+}
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -16,5 +33,5 @@ fn main() {
         process::exit(1);
     }
 
-    println!("Path set to: {}", loc_duplicates.display());
+    traverse_dir(loc_duplicates);
 }
