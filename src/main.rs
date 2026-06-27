@@ -1,22 +1,24 @@
 use std::env;
 use std::fs;
+use std::io::Result;
 use std::path::Path;
 use std::process;
 
-fn traverse_dir(dir: &Path) {
-    println!("Path set to: {}", dir.display());
+fn traverse_dir_with_duplicates(dir: &Path) -> Result<String> {
+    let mut count = 0;
 
     for entry in fs::read_dir(dir)? {
         let entry = entry?;
-        let path = entry.path();
         let metadata = entry.metadata()?;
 
-        if metadata.is_dir() {
-            println!("Directory: {:?}", path);
-        } else {
+        if metadata.is_file() {
+            let path = entry.path();
             println!("File: {:?}", path);
+            count += 1;
         }
     }
+
+    Ok(format!("\nScanned {count} files"))
 }
 
 fn main() {
@@ -28,10 +30,11 @@ fn main() {
         Path::new(".")
     };
 
-    if !loc_duplicates.exists() {
-        eprintln!("The path {:?} does not exist.", loc_duplicates);
-        process::exit(1);
-    }
-
-    traverse_dir(loc_duplicates);
+    match traverse_dir_with_duplicates(loc_duplicates) {
+        Ok(result) => println!("{result}"),
+        Err(error) => {
+            eprintln!("{}", error);
+            process::exit(1);
+        }
+    };
 }
