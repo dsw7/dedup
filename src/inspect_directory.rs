@@ -15,9 +15,10 @@ pub fn locate_duplicate_files(dir: &Path) -> Result<TypeSHA256Hashes> {
 
         if metadata.is_file() {
             let filepath = entry.path();
+
             match compute_file_sha256(&filepath) {
                 Ok(hash) => {
-                    hashes.insert(hash, filepath);
+                    hashes.entry(hash.clone()).or_default().push(filepath);
                 }
                 Err(error) => return Err(error),
             };
@@ -28,7 +29,10 @@ pub fn locate_duplicate_files(dir: &Path) -> Result<TypeSHA256Hashes> {
 }
 
 pub fn delete_duplicate_files(hashes: &TypeSHA256Hashes) {
-    for (key, value) in hashes {
-        println!("{}: {}", key, value.display());
+    for (hash, files) in hashes {
+        println!("{hash}:");
+        for file in files {
+            println!("-> {}", file.display());
+        }
     }
 }
