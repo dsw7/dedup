@@ -6,7 +6,7 @@ use std::fs;
 use std::io::Result;
 use std::path::Path;
 
-pub fn locate_duplicate_files(dir: &Path) -> Result<TypeSHA256Hashes> {
+pub fn compute_all_file_hashes(dir: &Path) -> Result<TypeSHA256Hashes> {
     let mut hashes: TypeSHA256Hashes = HashMap::new();
 
     for entry in fs::read_dir(dir)? {
@@ -28,7 +28,7 @@ pub fn locate_duplicate_files(dir: &Path) -> Result<TypeSHA256Hashes> {
     Ok(hashes)
 }
 
-pub fn delete_duplicate_files(hashes: &TypeSHA256Hashes) {
+pub fn isolate_duplicate_files(hashes: &TypeSHA256Hashes) {
     for (hash, files) in hashes {
         println!("{hash}:");
         for file in files {

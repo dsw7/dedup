@@ -2,7 +2,7 @@ mod get_file_hash;
 mod locate_duplicates;
 mod types;
 
-use locate_duplicates::{delete_duplicate_files, locate_duplicate_files};
+use locate_duplicates::{compute_all_file_hashes, isolate_duplicate_files};
 use types::TypeSHA256Hashes;
 
 use std::env;
@@ -18,7 +18,7 @@ fn main() {
         Path::new(".")
     };
 
-    let hashes: TypeSHA256Hashes = match locate_duplicate_files(loc_duplicates) {
+    let hashes: TypeSHA256Hashes = match compute_all_file_hashes(loc_duplicates) {
         Ok(hashes) => hashes,
         Err(error) => {
             eprintln!("{}", error);
@@ -26,5 +26,5 @@ fn main() {
         }
     };
 
-    delete_duplicate_files(&hashes);
+    isolate_duplicate_files(&hashes);
 }
