@@ -2,8 +2,8 @@ mod get_file_hash;
 mod inspect_directory;
 mod types;
 
-use crate::inspect_directory::{delete_duplicate_files, locate_duplicate_files};
-use crate::types::TypeSHA256Hashes;
+use inspect_directory::{delete_duplicate_files, locate_duplicate_files};
+use types::TypeSHA256Hashes;
 
 use std::env;
 use std::path::Path;
