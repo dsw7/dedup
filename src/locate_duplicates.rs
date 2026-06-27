@@ -28,7 +28,11 @@ pub fn compute_all_file_hashes(dir: &Path) -> Result<TypeSHA256Hashes> {
     Ok(hashes)
 }
 
-pub fn isolate_duplicate_files(hashes: &TypeSHA256Hashes) {
+pub fn isolate_duplicate_files(hashes: &mut TypeSHA256Hashes) {
+    hashes.retain(|_, files| files.len() > 1);
+}
+
+pub fn delete_duplicate_files(hashes: &TypeSHA256Hashes) {
     for (hash, files) in hashes {
         println!("{hash}:");
         for file in files {
