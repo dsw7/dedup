@@ -6,7 +6,7 @@ use std::fs;
 use std::io::Result;
 use std::path::Path;
 
-pub fn compute_all_file_hashes(dir: &Path) -> Result<TypeSHA256Hashes> {
+pub fn compute_sha256_hashes(dir: &Path) -> Result<TypeSHA256Hashes> {
     let mut hashes: TypeSHA256Hashes = HashMap::new();
 
     for entry in fs::read_dir(dir)? {
