@@ -1,13 +1,13 @@
 use crate::get_file_hash::compute_file_sha256;
-use crate::types::TypeSHA256Hashes;
+use crate::types::TypeHashes;
 
 use std::collections::HashMap;
 use std::fs;
 use std::io::Result;
 use std::path::Path;
 
-pub fn compute_sha256_hashes(dir: &Path) -> Result<TypeSHA256Hashes> {
-    let mut hashes: TypeSHA256Hashes = HashMap::new();
+pub fn compute_sha256_hashes(dir: &Path) -> Result<TypeHashes> {
+    let mut hashes: TypeHashes = HashMap::new();
 
     for entry in fs::read_dir(dir)? {
         let entry = entry?;
@@ -28,11 +28,11 @@ pub fn compute_sha256_hashes(dir: &Path) -> Result<TypeSHA256Hashes> {
     Ok(hashes)
 }
 
-pub fn isolate_duplicate_files(hashes: &mut TypeSHA256Hashes) {
+pub fn isolate_duplicate_files(hashes: &mut TypeHashes) {
     hashes.retain(|_, files| files.len() > 1);
 }
 
-pub fn delete_duplicate_files(hashes: &TypeSHA256Hashes) {
+pub fn delete_duplicate_files(hashes: &TypeHashes) {
     for (hash, files) in hashes {
         println!("{hash}:");
         for file in files {
