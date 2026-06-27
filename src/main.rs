@@ -1,8 +1,8 @@
 mod get_file_hash;
-mod inspect_directory;
+mod locate_duplicates;
 mod types;
 
-use inspect_directory::{delete_duplicate_files, locate_duplicate_files};
+use locate_duplicates::{delete_duplicate_files, locate_duplicate_files};
 use types::TypeSHA256Hashes;
 
 use std::env;
