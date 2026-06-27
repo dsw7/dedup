@@ -5,29 +5,6 @@ use std::path::Path;
 
 const CHUNK_BUF_SIZE: usize = 4096;
 
-/*
-pub fn compute_file_sha256<P: AsRef<Path>>(filepath: P) -> Result<String> {
-    //println!("File: {:?}", filepath);
-
-    let file = File::open(filepath)?;
-
-    let mut reader = BufReader::new(filepath);
-    let mut hasher = Sha256::new();
-    let mut buffer = [0u8; CHUNK_BUF_SIZE];
-
-    loop {
-        let bytes_read = reader.read(&mut buffer)?;
-        if bytes_read == 0 {
-            break; //eof
-        }
-        hasher.update(&buffer[..bytes_read]);
-    }
-
-    let result = hasher.finalize();
-    Ok(format!("{:x}", result))
-}
-*/
-
 pub fn compute_file_sha256<P: AsRef<Path>>(path: P) -> Result<String> {
     let file = File::open(path)?;
 

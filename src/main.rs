@@ -1,24 +1,33 @@
+mod get_file_hash;
+
+use std::collections::HashMap;
 use std::env;
 use std::fs;
 use std::io::Result;
 use std::path::Path;
 use std::process;
 
-fn traverse_dir_with_duplicates(dir: &Path) -> Result<String> {
-    let mut count = 0;
+fn locate_duplicate_files(dir: &Path) -> Result<()> {
+    let mut hashes = HashMap::new();
 
     for entry in fs::read_dir(dir)? {
         let entry = entry?;
         let metadata = entry.metadata()?;
 
         if metadata.is_file() {
-            let path = entry.path();
-            println!("File: {:?}", path);
-            count += 1;
+            let filepath = entry.path();
+            match get_file_hash::compute_file_sha256(&filepath) {
+                Ok(hash) => hashes.insert(hash, filepath),
+                Err(_) => todo!(),
+            };
         }
     }
 
-    Ok(format!("\nScanned {count} files"))
+    for (key, value) in &hashes {
+        println!("{}: {}", key, value.display());
+    }
+
+    Ok(())
 }
 
 fn main() {
@@ -30,8 +39,8 @@ fn main() {
         Path::new(".")
     };
 
-    match traverse_dir_with_duplicates(loc_duplicates) {
-        Ok(result) => println!("{result}"),
+    match locate_duplicate_files(loc_duplicates) {
+        Ok(()) => println!("Success!"),
         Err(error) => {
             eprintln!("{}", error);
             process::exit(1);
