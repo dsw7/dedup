@@ -7,23 +7,25 @@ use locate_duplicates::{
 };
 use types::TypeHashes;
 
-use std::env;
-use std::path::Path;
+use clap::Parser;
+use std::path::PathBuf;
 use std::process;
 
+#[derive(Parser, Debug)]
+#[command(name = "dedup", version = "1.0", about = "Deduplicates files in a directory", long_about = None)]
+struct Cli {
+    #[arg(value_name = "DIR", default_value = ".")]
+    loc_duplicates: PathBuf,
+
+    #[arg(short, long)]
+    use_sha256: bool,
+}
+
 fn main() {
-    let args: Vec<String> = env::args().collect();
+    let cli = Cli::parse();
 
-    let loc_duplicates = if args.len() > 1 {
-        Path::new(&args[1])
-    } else {
-        Path::new(".")
-    };
-
-    let use_md5 = true;
-
-    let mut hashes: TypeHashes = if use_md5 {
-        match compute_md5_hashes(loc_duplicates) {
+    let mut hashes: TypeHashes = if cli.use_sha256 {
+        match compute_sha256_hashes(&cli.loc_duplicates) {
             Ok(hashes) => hashes,
             Err(error) => {
                 eprintln!("{}", error);
@@ -31,7 +33,7 @@ fn main() {
             }
         }
     } else {
-        match compute_sha256_hashes(loc_duplicates) {
+        match compute_md5_hashes(&cli.loc_duplicates) {
             Ok(hashes) => hashes,
             Err(error) => {
                 eprintln!("{}", error);
