@@ -6,7 +6,7 @@ use std::path::Path;
 
 const CHUNK_BUF_SIZE: usize = 4096;
 
-pub fn calculate_file_md5(file_path: &Path) -> Result<String> {
+pub fn compute_file_md5(file_path: &Path) -> Result<String> {
     let file = File::open(file_path)?;
 
     let mut reader = BufReader::new(file);
@@ -16,7 +16,7 @@ pub fn calculate_file_md5(file_path: &Path) -> Result<String> {
     loop {
         let bytes_read = reader.read(&mut buffer)?;
         if bytes_read == 0 {
-            break; //eof
+            break; // eof
         }
         context.consume(&buffer[..bytes_read]);
     }

@@ -1,10 +1,32 @@
-use crate::get_file_hash::compute_file_sha256;
+use crate::get_file_hash::{compute_file_md5, compute_file_sha256};
 use crate::types::TypeHashes;
 
 use std::collections::HashMap;
 use std::fs;
 use std::io::Result;
 use std::path::Path;
+
+pub fn compute_md5_hashes(dir: &Path) -> Result<TypeHashes> {
+    let mut hashes: TypeHashes = HashMap::new();
+
+    for entry in fs::read_dir(dir)? {
+        let entry = entry?;
+        let metadata = entry.metadata()?;
+
+        if metadata.is_file() {
+            let filepath = entry.path();
+
+            match compute_file_md5(&filepath) {
+                Ok(hash) => {
+                    hashes.entry(hash.clone()).or_default().push(filepath);
+                }
+                Err(error) => return Err(error),
+            };
+        }
+    }
+
+    Ok(hashes)
+}
 
 pub fn compute_sha256_hashes(dir: &Path) -> Result<TypeHashes> {
     let mut hashes: TypeHashes = HashMap::new();
