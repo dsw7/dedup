@@ -4,7 +4,7 @@ use std::fs::File;
 use std::io::{BufReader, Read, Result};
 use std::path::Path;
 
-const CHUNK_BUF_SIZE: usize = 4096;
+const CHUNK_BUF_SIZE: usize = 65536;
 
 pub fn compute_file_md5(file_path: &Path) -> Result<String> {
     let file = File::open(file_path)?;
