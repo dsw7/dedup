@@ -2,7 +2,9 @@ mod get_file_hash;
 mod locate_duplicates;
 mod types;
 
-use locate_duplicates::{compute_sha256_hashes, delete_duplicate_files, isolate_duplicate_files};
+use locate_duplicates::{
+    compute_md5_hashes, compute_sha256_hashes, delete_duplicate_files, isolate_duplicate_files,
+};
 use types::TypeHashes;
 
 use std::env;
@@ -18,11 +20,23 @@ fn main() {
         Path::new(".")
     };
 
-    let mut hashes: TypeHashes = match compute_sha256_hashes(loc_duplicates) {
-        Ok(hashes) => hashes,
-        Err(error) => {
-            eprintln!("{}", error);
-            process::exit(1);
+    let use_md5 = true;
+
+    let mut hashes: TypeHashes = if use_md5 {
+        match compute_md5_hashes(loc_duplicates) {
+            Ok(hashes) => hashes,
+            Err(error) => {
+                eprintln!("{}", error);
+                process::exit(1);
+            }
+        }
+    } else {
+        match compute_sha256_hashes(loc_duplicates) {
+            Ok(hashes) => hashes,
+            Err(error) => {
+                eprintln!("{}", error);
+                process::exit(1);
+            }
         }
     };
 
