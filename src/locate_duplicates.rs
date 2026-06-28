@@ -32,11 +32,12 @@ pub fn isolate_duplicate_files(hashes: &mut TypeHashes) {
     hashes.retain(|_, files| files.len() > 1);
 }
 
-pub fn delete_duplicate_files(hashes: &TypeHashes) {
+pub fn print_duplicate_files(hashes: &TypeHashes) {
     for (hash, files) in hashes {
-        println!("{hash}:");
+        println!("Found duplicates with hash: {hash}");
         for file in files {
-            println!("-> {}", file.display());
+            println!("  -> {}", file.display());
         }
+        println!("");
     }
 }
