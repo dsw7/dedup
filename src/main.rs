@@ -14,6 +14,9 @@ use std::process;
 struct Cli {
     #[arg(value_name = "DIR", default_value = ".")]
     loc_duplicates: PathBuf,
+
+    #[arg(short, long, help = "Delete the files (disabled by default)")]
+    delete: bool,
 }
 
 fn main() {
