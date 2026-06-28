@@ -1,8 +1,9 @@
-mod get_file_hash;
 mod locate_duplicates;
+mod process_duplicates;
 mod types;
 
-use locate_duplicates::{compute_sha256_hashes, isolate_duplicate_files, print_duplicate_files};
+use process_duplicates::{compute_sha256_hashes, isolate_duplicate_files};
+use process_duplicates::{delete_duplicate_files, print_duplicate_files};
 use types::TypeHashes;
 
 use clap::Parser;
@@ -37,5 +38,9 @@ fn main() {
         process::exit(0);
     }
 
-    print_duplicate_files(&hashes);
+    if cli.delete {
+        delete_duplicate_files(&hashes);
+    } else {
+        print_duplicate_files(&hashes);
+    }
 }
