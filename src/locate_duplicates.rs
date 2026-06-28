@@ -1,14 +1,17 @@
 use sha2::{Digest, Sha256};
-use std::fs::File;
-use std::io::{BufReader, Read, Result};
-use std::path::Path;
+use std::collections::HashMap;
+use std::fs::{self, File};
+use std::io::{self, Read};
+use std::path;
+
+use crate::types::TypeHashes;
 
 const CHUNK_BUF_SIZE: usize = 65536;
 
-pub fn compute_file_sha256<P: AsRef<Path>>(path: P) -> Result<String> {
+fn compute_file_sha256<P: AsRef<path::Path>>(path: P) -> io::Result<String> {
     let file = File::open(path)?;
 
-    let mut reader = BufReader::new(file);
+    let mut reader = io::BufReader::new(file);
     let mut hasher = Sha256::new();
     let mut buffer = [0u8; CHUNK_BUF_SIZE];
 
@@ -22,4 +25,31 @@ pub fn compute_file_sha256<P: AsRef<Path>>(path: P) -> Result<String> {
 
     let hash_result = hasher.finalize();
     Ok(format!("{:x}", hash_result))
+}
+
+fn isolate_duplicate_files(hashes: &mut TypeHashes) {
+    hashes.retain(|_, files| files.len() > 1);
+}
+
+pub fn compute_sha256_hashes(dir: &path::Path) -> io::Result<TypeHashes> {
+    let mut hashes: TypeHashes = HashMap::new();
+
+    for entry in fs::read_dir(dir)? {
+        let entry = entry?;
+        let metadata = entry.metadata()?;
+
+        if metadata.is_file() {
+            let filepath = entry.path();
+
+            match compute_file_sha256(&filepath) {
+                Ok(hash) => {
+                    hashes.entry(hash.clone()).or_default().push(filepath);
+                }
+                Err(error) => return Err(error),
+            };
+        }
+    }
+
+    isolate_duplicate_files(&mut hashes);
+    Ok(hashes)
 }
