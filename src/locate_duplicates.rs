@@ -42,7 +42,7 @@ pub fn print_duplicate_files(hashes: &TypeHashes) {
     }
 }
 
-fn get_index_from_stdin(index: i32) -> io::Result<i32> {
+fn get_index_from_stdin(index: usize) -> io::Result<usize> {
     loop {
         print!("Input an option [0 to {index}]: ");
         io::stdout().flush()?;
@@ -54,18 +54,19 @@ fn get_index_from_stdin(index: i32) -> io::Result<i32> {
             Ok(option) => {
                 if option > index {
                     println!("Option cannot exceed {index}. Try again");
-                } else if option < 0 {
-                    println!("Option cannot be less than 0. Try again");
                 } else {
                     return Ok(option);
                 }
+                // compiler knows that parse() attempts to convert input into a usize,
+                // so -1 will automatically return an Err variant which means no manual
+                // check is necessary
             }
             Err(_) => println!("That is not a valid option. Please try again."),
         }
     }
 }
 
-fn delete_all_files_except(index_to_keep: i32, files: &Vec<path::PathBuf>) {
+fn delete_all_files_except(index_to_keep: usize, files: &Vec<path::PathBuf>) {
     for (index, file) in files.iter().enumerate() {
         if index_to_keep - 1 == index {
             println!(" + {}", file.display());
