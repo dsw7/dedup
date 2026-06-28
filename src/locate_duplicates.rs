@@ -3,10 +3,10 @@ use crate::types::TypeHashes;
 
 use std::collections::HashMap;
 use std::fs;
-use std::io::Result;
-use std::path::Path;
+use std::io::{self,Write};
+use std::path;
 
-pub fn compute_sha256_hashes(dir: &Path) -> Result<TypeHashes> {
+pub fn compute_sha256_hashes(dir: &path::Path) -> io::Result<TypeHashes> {
     let mut hashes: TypeHashes = HashMap::new();
 
     for entry in fs::read_dir(dir)? {
@@ -38,6 +38,41 @@ pub fn print_duplicate_files(hashes: &TypeHashes) {
         for file in files {
             println!("  -> {}", file.display());
         }
+        println!("");
+    }
+}
+
+fn get_index_from_stdin(index: i32) -> io::Result<i32> {
+    loop {
+        print!("Input an option [0 to {index}]: ");
+        io::stdout().flush()?;
+
+        let mut input = String::new();
+        io::stdin().read_line(&mut input)?;
+
+        match input.trim().parse() {
+            Ok(option) => return Ok(option),
+            Err(_) => println!("That is not a valid option. Please try again."),
+        }
+    }
+}
+
+pub fn delete_duplicate_files(hashes: &TypeHashes) {
+    for (hash, files) in hashes {
+        println!("Found duplicates with hash: {hash}");
+        println!(" [0] -> Skip this batch");
+
+        let mut index = 0;
+        for file in files {
+            index += 1;
+            println!(" [{index}] -> Keep this file: {}", file.display());
+        }
+
+        match get_index_from_stdin(index) {
+            Ok(option) => println!("{option}"),
+            Err(error) => eprintln!("{error}"),
+        }
+
         println!("");
     }
 }
