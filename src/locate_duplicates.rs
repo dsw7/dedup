@@ -65,6 +65,16 @@ fn get_index_from_stdin(index: i32) -> io::Result<i32> {
     }
 }
 
+fn delete_all_files_except(index_to_keep: i32, files: &Vec<path::PathBuf>) {
+    for (index, file) in files.iter().enumerate() {
+        if index_to_keep - 1 == index {
+            println!(" + {}", file.display());
+        } else {
+            println!(" - {}", file.display());
+        }
+    }
+}
+
 pub fn delete_duplicate_files(hashes: &TypeHashes) {
     for (hash, files) in hashes {
         println!("Found duplicates with hash: {hash}");
@@ -77,7 +87,13 @@ pub fn delete_duplicate_files(hashes: &TypeHashes) {
         }
 
         match get_index_from_stdin(index) {
-            Ok(option) => println!("{option}"),
+            Ok(option) => {
+                if option == 0 {
+                    println!("Skipping this batch");
+                } else {
+                    delete_all_files_except(option, files);
+                }
+            }
             Err(error) => eprintln!("{error}"),
         }
 
