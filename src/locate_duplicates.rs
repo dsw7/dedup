@@ -3,7 +3,7 @@ use crate::types::TypeHashes;
 
 use std::collections::HashMap;
 use std::fs;
-use std::io::{self,Write};
+use std::io::{self, Write};
 use std::path;
 
 pub fn compute_sha256_hashes(dir: &path::Path) -> io::Result<TypeHashes> {
@@ -51,7 +51,15 @@ fn get_index_from_stdin(index: i32) -> io::Result<i32> {
         io::stdin().read_line(&mut input)?;
 
         match input.trim().parse() {
-            Ok(option) => return Ok(option),
+            Ok(option) => {
+                if option > index {
+                    println!("Option cannot exceed {index}. Try again");
+                } else if option < 0 {
+                    println!("Option cannot be less than 0. Try again");
+                } else {
+                    return Ok(option);
+                }
+            }
             Err(_) => println!("That is not a valid option. Please try again."),
         }
     }
