@@ -29,7 +29,7 @@ fn compute_file_sha256<P: AsRef<path::Path>>(path: P) -> io::Result<String> {
 }
 
 fn is_valid_file_type(file: &std::path::PathBuf) -> bool {
-    static VALID_EXTENSIONS: [&str; 2] = ["png", "jpg"];
+    static VALID_EXTENSIONS: [&str; 7] = ["png", "jpg", "jpeg", "gif", "bmp", "tiff", "webp"];
 
     match file.extension().and_then(ffi::OsStr::to_str) {
         Some(ext) => VALID_EXTENSIONS.contains(&ext.to_lowercase().as_str()),
