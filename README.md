@@ -11,10 +11,18 @@ parse EXIF metadata.
 
 ## Table of Contents
 
+- [Build](#build)
 - [Usage](#usage)
   - [List but do not delete duplicates](#list-but-do-not-delete-duplicates)
   - [List and delete duplicates](#list-and-delete-duplicates)
 - [License](#license)
+
+## Build
+Run:
+```
+cargo install --path . --root ~/.local
+```
+Which will build a release binary and install it under `~/.local/bin`.
 
 ## Usage
 
