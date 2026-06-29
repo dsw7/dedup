@@ -27,6 +27,10 @@ fn compute_file_sha256<P: AsRef<path::Path>>(path: P) -> io::Result<String> {
     Ok(format!("{:x}", hash_result))
 }
 
+fn append_hash(hashes: &mut TypeHashes, hash: String, file: path::PathBuf) {
+    hashes.entry(hash.clone()).or_default().push(file);
+}
+
 fn isolate_duplicate_files(hashes: &mut TypeHashes) {
     hashes.retain(|_, files| files.len() > 1);
 }
@@ -41,7 +45,7 @@ pub fn compute_sha256_hashes(dir: &path::Path) -> io::Result<TypeHashes> {
         if metadata.is_file() {
             let filepath = entry.path();
             let hash = compute_file_sha256(&filepath)?;
-            hashes.entry(hash.clone()).or_default().push(filepath);
+            append_hash(&mut hashes, hash, filepath);
         }
     }
 
