@@ -1,5 +1,6 @@
 use crate::types::TypeHashes;
 
+use std::fs;
 use std::io::{self, Write};
 use std::path;
 
@@ -27,12 +28,19 @@ fn get_index_from_stdin(index: usize) -> io::Result<usize> {
     }
 }
 
+fn delete_single_file(file: &path::PathBuf) {
+    match fs::remove_file(file) {
+        Ok(_) => println!(" (-) {}", file.display()),
+        Err(error) => eprintln!("Cannot delete file '{}': {error}", file.display()),
+    }
+}
+
 fn delete_all_files_except(index_to_keep: usize, files: &Vec<path::PathBuf>) {
     for (index, file) in files.iter().enumerate() {
         if index_to_keep - 1 == index {
             println!(" (+) {}", file.display());
         } else {
-            println!(" (-) {}", file.display());
+            delete_single_file(file);
         }
     }
 }
