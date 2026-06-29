@@ -40,13 +40,8 @@ pub fn compute_sha256_hashes(dir: &path::Path) -> io::Result<TypeHashes> {
 
         if metadata.is_file() {
             let filepath = entry.path();
-
-            match compute_file_sha256(&filepath) {
-                Ok(hash) => {
-                    hashes.entry(hash.clone()).or_default().push(filepath);
-                }
-                Err(error) => return Err(error),
-            };
+            let hash = compute_file_sha256(&filepath)?;
+            hashes.entry(hash.clone()).or_default().push(filepath);
         }
     }
 

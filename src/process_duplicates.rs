@@ -30,9 +30,9 @@ fn get_index_from_stdin(index: usize) -> io::Result<usize> {
 fn delete_all_files_except(index_to_keep: usize, files: &Vec<path::PathBuf>) {
     for (index, file) in files.iter().enumerate() {
         if index_to_keep - 1 == index {
-            println!(" + {}", file.display());
+            println!(" (+) {}", file.display());
         } else {
-            println!(" - {}", file.display());
+            println!(" (-) {}", file.display());
         }
     }
 }
