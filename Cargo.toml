@@ -1,7 +1,10 @@
 [package]
-name = "file-deduplicator"
-version = "0.1.0"
+description = "Deduplicates image files in a directory"
 edition = "2024"
+license = "MIT"
+name = "dedup"
+repository = "https://github.com/dsw7/dedup"
+version = "1.0.0"
 
 [[bin]]
 name = "dedup"
