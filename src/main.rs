@@ -23,7 +23,7 @@ struct Cli {
 fn main() {
     let cli = Cli::parse();
 
-    let hashes: TypeHashes = match compute_sha256_hashes(&cli.loc_duplicates) {
+    let hashes: TypeHashes = match compute_sha256_hashes(cli.loc_duplicates) {
         Ok(hashes) => hashes,
         Err(error) => {
             eprintln!("{}", error);

@@ -35,7 +35,7 @@ fn isolate_duplicate_files(hashes: &mut TypeHashes) {
     hashes.retain(|_, files| files.len() > 1);
 }
 
-pub fn compute_sha256_hashes(dir: &path::Path) -> io::Result<TypeHashes> {
+pub fn compute_sha256_hashes(dir: path::PathBuf) -> io::Result<TypeHashes> {
     let mut hashes: TypeHashes = HashMap::new();
 
     for entry in fs::read_dir(dir)? {
