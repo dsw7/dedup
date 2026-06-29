@@ -1,4 +1,4 @@
-# File Deduplicator
+# `dedup`
 
 A program that locates duplicate image files in a directory by comparing SHA256
 hashes. This program is similar to `fdupes` (see
@@ -14,6 +14,7 @@ parse EXIF metadata.
 - [Usage](#usage)
   - [List but do not delete duplicates](#list-but-do-not-delete-duplicates)
   - [List and delete duplicates](#list-and-delete-duplicates)
+- [License](#license)
 
 ## Usage
 
@@ -35,3 +36,7 @@ dedup /path/to/directory --delete # or -d
 ```
 This will locate the duplicates and interactively ask which file should be
 kept.
+
+## License
+
+MIT License — see [`LICENSE`](LICENSE) for details.
