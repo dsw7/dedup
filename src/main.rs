@@ -13,7 +13,13 @@ use std::path;
 use std::process;
 
 #[derive(Parser, Debug)]
-#[command(name = "dedup", version = "1.0", about = "Deduplicates files in a directory", long_about = None)]
+#[command(
+    name = "dedup",
+    version,
+    about = "Deduplicates image files in a directory",
+    after_help = "See https://github.com/dsw7/dedup for more information
+See the fdupes(1) manpages for a more general deduplication command"
+)]
 struct Cli {
     #[arg(value_name = "DIR", default_value = ".")]
     loc_duplicates: path::PathBuf,
