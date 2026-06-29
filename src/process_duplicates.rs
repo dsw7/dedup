@@ -35,7 +35,7 @@ fn delete_single_file(file: &path::PathBuf) {
     }
 }
 
-fn delete_all_files_except(index_to_keep: usize, files: &Vec<path::PathBuf>) {
+fn delete_all_files_except(index_to_keep: usize, files: Vec<path::PathBuf>) {
     for (index, file) in files.iter().enumerate() {
         if index_to_keep - 1 == index {
             println!(" (+) {}", file.display());
@@ -45,13 +45,13 @@ fn delete_all_files_except(index_to_keep: usize, files: &Vec<path::PathBuf>) {
     }
 }
 
-pub fn delete_duplicate_files(hashes: &TypeHashes) {
+pub fn delete_duplicate_files(hashes: TypeHashes) {
     for (hash, files) in hashes {
         println!("Found duplicates with hash: {hash}");
         println!(" [0] -> Skip this batch");
 
         let mut index = 0;
-        for file in files {
+        for file in &files {
             index += 1;
             println!(" [{index}] -> Keep this file: {}", file.display());
         }

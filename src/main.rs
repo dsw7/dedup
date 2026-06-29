@@ -39,7 +39,7 @@ fn main() {
     }
 
     if cli.delete {
-        delete_duplicate_files(&hashes);
+        delete_duplicate_files(hashes);
     } else {
         print_duplicate_files(hashes);
     }
