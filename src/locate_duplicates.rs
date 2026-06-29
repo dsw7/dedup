@@ -32,7 +32,7 @@ fn is_valid_file_type(file: &std::path::PathBuf) -> bool {
     static VALID_EXTENSIONS: [&str; 2] = ["png", "jpg"];
 
     match file.extension().and_then(ffi::OsStr::to_str) {
-        Some(ext) => VALID_EXTENSIONS.contains(&ext),
+        Some(ext) => VALID_EXTENSIONS.contains(&ext.to_lowercase().as_str()),
         None => false,
     }
 }
