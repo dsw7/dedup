@@ -1,4 +1,4 @@
-use crate::files::SHA256FileMap;
+use crate::sha256_filemap::SHA256FileMap;
 
 use std::fs::remove_file;
 use std::io::{self, Result, Write};

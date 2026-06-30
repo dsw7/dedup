@@ -1,10 +1,10 @@
+use crate::sha256_filemap::SHA256FileMap;
+
 use sha2::{Digest, Sha256};
 use std::ffi::OsStr;
 use std::fs::{File, read_dir};
 use std::io::{BufReader, Read, Result};
 use std::path::{Path, PathBuf};
-
-use crate::files::SHA256FileMap;
 
 const CHUNK_BUF_SIZE: usize = 65536;
 

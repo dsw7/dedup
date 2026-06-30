@@ -1,12 +1,12 @@
 mod delete_duplicates;
-mod files;
 mod locate_duplicates;
 mod print_duplicates;
+mod sha256_filemap;
 
 use delete_duplicates::delete_duplicate_files;
-use files::SHA256FileMap;
 use locate_duplicates::compute_sha256_hashes;
 use print_duplicates::print_duplicate_files;
+use sha256_filemap::SHA256FileMap;
 
 use clap::Parser;
 use std::path::PathBuf;
