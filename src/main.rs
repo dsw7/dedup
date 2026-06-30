@@ -7,6 +7,7 @@ use std::path::PathBuf;
 use std::process;
 
 use clap::Parser;
+
 use delete_duplicates::delete_duplicate_files;
 use locate_duplicates::compute_sha256_hashes;
 use print_duplicates::print_duplicate_files;

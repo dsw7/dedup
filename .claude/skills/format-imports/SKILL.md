@@ -4,16 +4,16 @@ description: Format / reorder imports
 ---
 
 ## Instructions
-Locate the `src` directory. Inspect each Rust source code (`.rs`) file. Reorder
-the imports and `mod` declarations as follows:
+Locate the `src` directory. Inspect each Rust source code (`.rs`) file. Group
+and then reorder the imports and `mod` declarations as follows:
 
 1. All `mod` declarations should come first (if they exist)
 2. Standard library imports should come next (if they exist)
 3. External crate imports should come next (if they exist)
 4. Finally, local crates / submodules should come last (if they exist)
 
-Additionally, there should be a single newline between the blocks. Run `cargo
-fmt` as well, which will automatically sort the blocks.
+Place a newline between each group you create. Finally, run `cargo fmt` as
+well, which will automatically sort the groups.
 
 ## Expected output
 The output should look something like:
