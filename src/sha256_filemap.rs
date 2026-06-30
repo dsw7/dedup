@@ -1,8 +1,9 @@
 use std::collections::HashMap;
+use std::collections::hash_map::Iter;
 use std::path::PathBuf;
 
 pub struct SHA256FileMap {
-    pub hash_to_files: HashMap<String, Vec<PathBuf>>,
+    hash_to_files: HashMap<String, Vec<PathBuf>>,
 }
 
 impl SHA256FileMap {
@@ -25,5 +26,9 @@ impl SHA256FileMap {
 
     pub fn empty(&self) -> bool {
         self.hash_to_files.len() < 1
+    }
+
+    pub fn iter(&self) -> Iter<String, Vec<PathBuf>> {
+        self.hash_to_files.iter()
     }
 }
