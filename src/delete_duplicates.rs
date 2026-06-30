@@ -1,4 +1,4 @@
-use crate::files::Files;
+use crate::files::SHA256FileMap;
 
 use std::fs::remove_file;
 use std::io::{self, Result, Write};
@@ -45,7 +45,7 @@ fn delete_all_files_except(index_to_keep: usize, files: Vec<PathBuf>) {
     }
 }
 
-pub fn delete_duplicate_files(files: Files) {
+pub fn delete_duplicate_files(files: SHA256FileMap) {
     for (hash, filenames) in files.hashes {
         println!("Found duplicates with hash: {hash}");
         println!(" [0] -> Skip this batch");

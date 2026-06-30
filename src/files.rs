@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-pub struct Files {
+pub struct SHA256FileMap {
     pub hashes: HashMap<String, Vec<PathBuf>>,
 }
 
-impl Files {
+impl SHA256FileMap {
     pub fn new() -> Self {
-        Files {
+        SHA256FileMap {
             hashes: HashMap::new(),
         }
     }

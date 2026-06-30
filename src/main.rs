@@ -4,7 +4,7 @@ mod locate_duplicates;
 mod print_duplicates;
 
 use delete_duplicates::delete_duplicate_files;
-use files::Files;
+use files::SHA256FileMap;
 use locate_duplicates::compute_sha256_hashes;
 use print_duplicates::print_duplicate_files;
 
@@ -31,7 +31,7 @@ struct Cli {
 fn main() {
     let cli = Cli::parse();
 
-    let mut files: Files = match compute_sha256_hashes(cli.loc_duplicates) {
+    let mut files: SHA256FileMap = match compute_sha256_hashes(cli.loc_duplicates) {
         Ok(files) => files,
         Err(error) => {
             eprintln!("{}", error);

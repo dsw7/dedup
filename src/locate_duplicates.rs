@@ -4,7 +4,7 @@ use std::fs::{File, read_dir};
 use std::io::{BufReader, Read, Result};
 use std::path::{Path, PathBuf};
 
-use crate::files::Files;
+use crate::files::SHA256FileMap;
 
 const CHUNK_BUF_SIZE: usize = 65536;
 
@@ -36,8 +36,8 @@ fn is_valid_file_type(file: &PathBuf) -> bool {
     }
 }
 
-pub fn compute_sha256_hashes(dir: PathBuf) -> Result<Files> {
-    let mut files = Files::new();
+pub fn compute_sha256_hashes(dir: PathBuf) -> Result<SHA256FileMap> {
+    let mut files = SHA256FileMap::new();
 
     for entry in read_dir(dir)? {
         let entry = entry?;

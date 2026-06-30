@@ -1,6 +1,6 @@
-use crate::files::Files;
+use crate::files::SHA256FileMap;
 
-pub fn print_duplicate_files(files: Files) {
+pub fn print_duplicate_files(files: SHA256FileMap) {
     for (hash, filenames) in files.hashes {
         println!("Found duplicates with hash: {hash}");
 
