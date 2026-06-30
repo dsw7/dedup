@@ -1,11 +1,11 @@
+mod delete_duplicates;
 mod locate_duplicates;
 mod print_duplicates;
-mod process_duplicates;
 mod types;
 
+use delete_duplicates::delete_duplicate_files;
 use locate_duplicates::compute_sha256_hashes;
 use print_duplicates::print_duplicate_files;
-use process_duplicates::delete_duplicate_files;
 use types::TypeHashes;
 
 use clap::Parser;

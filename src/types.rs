@@ -1,4 +1,4 @@
 use std::collections::HashMap;
-use std::path::PathBuf;
+use std::path;
 
-pub type TypeHashes = HashMap<String, Vec<PathBuf>>;
+pub type TypeHashes = HashMap<String, Vec<path::PathBuf>>;
