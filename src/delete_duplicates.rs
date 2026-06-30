@@ -1,10 +1,10 @@
-use crate::types::TypeHashes;
+use crate::files::Files;
 
-use std::fs;
-use std::io::{self, Write};
-use std::path;
+use std::fs::remove_file;
+use std::io::{self, Result, Write};
+use std::path::PathBuf;
 
-fn get_index_from_stdin(index: usize) -> io::Result<usize> {
+fn get_index_from_stdin(index: usize) -> Result<usize> {
     loop {
         print!("Input an option [0 to {index}]: ");
         io::stdout().flush()?;
@@ -28,14 +28,14 @@ fn get_index_from_stdin(index: usize) -> io::Result<usize> {
     }
 }
 
-fn delete_single_file(file: &path::PathBuf) {
-    match fs::remove_file(file) {
+fn delete_single_file(file: &PathBuf) {
+    match remove_file(file) {
         Ok(_) => println!(" (-) {}", file.display()),
         Err(error) => eprintln!("Cannot delete file '{}': {error}", file.display()),
     }
 }
 
-fn delete_all_files_except(index_to_keep: usize, files: Vec<path::PathBuf>) {
+fn delete_all_files_except(index_to_keep: usize, files: Vec<PathBuf>) {
     for (index, file) in files.iter().enumerate() {
         if index_to_keep - 1 == index {
             println!(" (+) {}", file.display());
@@ -45,13 +45,13 @@ fn delete_all_files_except(index_to_keep: usize, files: Vec<path::PathBuf>) {
     }
 }
 
-pub fn delete_duplicate_files(hashes: TypeHashes) {
-    for (hash, files) in hashes {
+pub fn delete_duplicate_files(files: Files) {
+    for (hash, filenames) in files.hashes {
         println!("Found duplicates with hash: {hash}");
         println!(" [0] -> Skip this batch");
 
         let mut index = 0;
-        for file in &files {
+        for file in &filenames {
             index += 1;
             println!(" [{index}] -> Keep this file: {}", file.display());
         }
@@ -61,7 +61,7 @@ pub fn delete_duplicate_files(hashes: TypeHashes) {
                 if option == 0 {
                     println!("Skipping this batch");
                 } else {
-                    delete_all_files_except(option, files);
+                    delete_all_files_except(option, filenames);
                 }
             }
             Err(error) => eprintln!("{error}"),

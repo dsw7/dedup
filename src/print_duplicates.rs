@@ -1,10 +1,10 @@
-use crate::types::TypeHashes;
+use crate::files::Files;
 
-pub fn print_duplicate_files(hashes: TypeHashes) {
-    for (hash, files) in hashes {
+pub fn print_duplicate_files(files: Files) {
+    for (hash, filenames) in files.hashes {
         println!("Found duplicates with hash: {hash}");
 
-        for file in files {
+        for file in filenames {
             println!("  -> {}", file.display());
         }
 

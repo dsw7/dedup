@@ -1,18 +1,17 @@
 use sha2::{Digest, Sha256};
-use std::collections::HashMap;
-use std::ffi;
-use std::fs::{self, File};
-use std::io::{self, Read};
-use std::path;
+use std::ffi::OsStr;
+use std::fs::{File, read_dir};
+use std::io::{BufReader, Read, Result};
+use std::path::{Path, PathBuf};
 
-use crate::types::TypeHashes;
+use crate::files::Files;
 
 const CHUNK_BUF_SIZE: usize = 65536;
 
-fn compute_file_sha256<P: AsRef<path::Path>>(path: P) -> io::Result<String> {
+fn compute_file_sha256<P: AsRef<Path>>(path: P) -> Result<String> {
     let file = File::open(path)?;
 
-    let mut reader = io::BufReader::new(file);
+    let mut reader = BufReader::new(file);
     let mut hasher = Sha256::new();
     let mut buffer = [0u8; CHUNK_BUF_SIZE];
 
@@ -28,27 +27,19 @@ fn compute_file_sha256<P: AsRef<path::Path>>(path: P) -> io::Result<String> {
     Ok(format!("{:x}", hash_result))
 }
 
-fn is_valid_file_type(file: &std::path::PathBuf) -> bool {
+fn is_valid_file_type(file: &PathBuf) -> bool {
     static VALID_EXTENSIONS: [&str; 7] = ["png", "jpg", "jpeg", "gif", "bmp", "tiff", "webp"];
 
-    match file.extension().and_then(ffi::OsStr::to_str) {
+    match file.extension().and_then(OsStr::to_str) {
         Some(ext) => VALID_EXTENSIONS.contains(&ext.to_lowercase().as_str()),
         None => false,
     }
 }
 
-fn append_hash(hashes: &mut TypeHashes, hash: String, file: path::PathBuf) {
-    hashes.entry(hash.clone()).or_default().push(file);
-}
+pub fn compute_sha256_hashes(dir: PathBuf) -> Result<Files> {
+    let mut files = Files::new();
 
-fn isolate_duplicate_files(hashes: &mut TypeHashes) {
-    hashes.retain(|_, files| files.len() > 1);
-}
-
-pub fn compute_sha256_hashes(dir: path::PathBuf) -> io::Result<TypeHashes> {
-    let mut hashes: TypeHashes = HashMap::new();
-
-    for entry in fs::read_dir(dir)? {
+    for entry in read_dir(dir)? {
         let entry = entry?;
         let metadata = entry.metadata()?;
 
@@ -62,10 +53,9 @@ pub fn compute_sha256_hashes(dir: path::PathBuf) -> io::Result<TypeHashes> {
             continue;
         }
 
-        let hash = compute_file_sha256(&filepath)?;
-        append_hash(&mut hashes, hash, filepath);
+        let filehash = compute_file_sha256(&filepath)?;
+        files.upsert_hash(filehash, filepath);
     }
 
-    isolate_duplicate_files(&mut hashes);
-    Ok(hashes)
+    Ok(files)
 }
