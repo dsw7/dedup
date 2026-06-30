@@ -1,8 +1,8 @@
-use crate::sha256_filemap::SHA256FileMap;
-
 use std::fs::remove_file;
 use std::io::{self, Result, Write};
 use std::path::PathBuf;
+
+use crate::sha256_filemap::SHA256FileMap;
 
 fn get_index_from_stdin(index: usize) -> Result<usize> {
     loop {
