@@ -2,7 +2,7 @@ use std::fs::remove_file;
 use std::io::{self, Result, Write};
 use std::path::PathBuf;
 
-use crate::sha256_filemap::SHA256FileMap;
+use crate::sha256_filemap::HashToFiles;
 
 fn get_index_from_stdin(index: usize) -> Result<usize> {
     loop {
@@ -45,8 +45,8 @@ fn delete_all_files_except(index_to_keep: usize, files: &Vec<PathBuf>) {
     }
 }
 
-pub fn delete_duplicate_files(files: SHA256FileMap) {
-    for (hash, filenames) in files.iter() {
+pub fn delete_duplicate_files(hash_to_files_dupes: &HashToFiles) {
+    for (hash, filenames) in hash_to_files_dupes {
         println!("Found duplicates with hash: {hash}");
         println!(" [0] -> Skip this batch");
 
