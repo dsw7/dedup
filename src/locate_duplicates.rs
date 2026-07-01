@@ -1,15 +1,16 @@
+use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::fs::{File, read_dir};
 use std::io::{BufReader, Read, Result};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use sha2::{Digest, Sha256};
 
-use crate::sha256_filemap::SHA256FileMap;
+use crate::sha256_filemap::{HashToFiles, upsert_hash_and_filepath};
 
 const CHUNK_BUF_SIZE: usize = 65536;
 
-fn compute_file_sha256<P: AsRef<Path>>(path: P) -> Result<String> {
+fn compute_file_sha256(path: &PathBuf) -> Result<String> {
     let file = File::open(path)?;
 
     let mut reader = BufReader::new(file);
@@ -37,8 +38,8 @@ fn is_valid_file_type(file: &PathBuf) -> bool {
     }
 }
 
-pub fn compute_sha256_hashes(dir: PathBuf) -> Result<SHA256FileMap> {
-    let mut files = SHA256FileMap::new();
+pub fn compute_sha256_hashes(dir: PathBuf) -> Result<HashToFiles> {
+    let mut hashes_files: HashToFiles = HashMap::new();
 
     for entry in read_dir(dir)? {
         let entry = entry?;
@@ -54,9 +55,9 @@ pub fn compute_sha256_hashes(dir: PathBuf) -> Result<SHA256FileMap> {
             continue;
         }
 
-        let filehash = compute_file_sha256(&filepath)?;
-        files.upsert_hash(filehash, filepath);
+        let hash = compute_file_sha256(&filepath)?;
+        upsert_hash_and_filepath(&mut hashes_files, hash, filepath);
     }
 
-    Ok(files)
+    Ok(hashes_files)
 }
