@@ -1,34 +1,21 @@
 use std::collections::HashMap;
-use std::collections::hash_map::Iter;
 use std::path::PathBuf;
 
-pub struct SHA256FileMap {
-    hash_to_files: HashMap<String, Vec<PathBuf>>,
+pub type HashToFiles = HashMap<String, Vec<PathBuf>>;
+
+pub fn upsert_hash_and_filepath(hash_to_files: &mut HashToFiles, hash: String, filepath: PathBuf) {
+    hash_to_files.entry(hash).or_default().push(filepath);
 }
 
-impl SHA256FileMap {
-    pub fn new() -> Self {
-        SHA256FileMap {
-            hash_to_files: HashMap::new(),
-        }
-    }
+pub fn isolate_duplicates(hash_to_files_all: HashToFiles) -> HashToFiles {
+    let hash_to_files_dupes: HashToFiles = hash_to_files_all
+        .into_iter()
+        .filter(|(_, files)| files.len() > 1)
+        .collect();
 
-    pub fn upsert_hash(&mut self, filehash: String, filepath: PathBuf) {
-        self.hash_to_files
-            .entry(filehash.clone())
-            .or_default()
-            .push(filepath);
-    }
+    hash_to_files_dupes
+}
 
-    pub fn isolate_duplicates(&mut self) {
-        self.hash_to_files.retain(|_, files| files.len() > 1);
-    }
-
-    pub fn empty(&self) -> bool {
-        self.hash_to_files.len() < 1
-    }
-
-    pub fn iter(&self) -> Iter<String, Vec<PathBuf>> {
-        self.hash_to_files.iter()
-    }
+pub fn empty(hash_to_files: &HashToFiles) -> bool {
+    hash_to_files.len() < 1
 }
