@@ -1,5 +1,5 @@
 mod delete_duplicates;
-mod locate_duplicates;
+mod get_file_hashes;
 mod print_duplicates;
 mod sha256_filemap;
 
@@ -9,7 +9,7 @@ use std::process;
 use clap::Parser;
 
 use delete_duplicates::delete_duplicate_files;
-use locate_duplicates::compute_sha256_hashes;
+use get_file_hashes::compute_sha256_hashes;
 use print_duplicates::print_duplicate_files;
 use sha256_filemap::{HashToFiles, empty, isolate_duplicates};
 
