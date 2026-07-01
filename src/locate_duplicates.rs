@@ -10,10 +10,19 @@ use crate::sha256_filemap::{HashToFiles, upsert_hash_and_filepath};
 
 const CHUNK_BUF_SIZE: usize = 65536;
 
-fn compute_file_sha256(path: &PathBuf) -> Result<String> {
-    let file = File::open(path)?;
+fn is_valid_file_type(file: &PathBuf) -> bool {
+    static VALID_EXTENSIONS: [&str; 7] = ["png", "jpg", "jpeg", "gif", "bmp", "tiff", "webp"];
 
-    let mut reader = BufReader::new(file);
+    match file.extension().and_then(OsStr::to_str) {
+        Some(ext) => VALID_EXTENSIONS.contains(&ext.to_lowercase().as_str()),
+        None => false,
+    }
+}
+
+fn compute_file_sha256(file: &PathBuf) -> Result<String> {
+    let file_handle = File::open(file)?;
+
+    let mut reader = BufReader::new(file_handle);
     let mut hasher = Sha256::new();
     let mut buffer = [0u8; CHUNK_BUF_SIZE];
 
@@ -29,17 +38,8 @@ fn compute_file_sha256(path: &PathBuf) -> Result<String> {
     Ok(format!("{:x}", hash_result))
 }
 
-fn is_valid_file_type(file: &PathBuf) -> bool {
-    static VALID_EXTENSIONS: [&str; 7] = ["png", "jpg", "jpeg", "gif", "bmp", "tiff", "webp"];
-
-    match file.extension().and_then(OsStr::to_str) {
-        Some(ext) => VALID_EXTENSIONS.contains(&ext.to_lowercase().as_str()),
-        None => false,
-    }
-}
-
 pub fn compute_sha256_hashes(dir: PathBuf) -> Result<HashToFiles> {
-    let mut hashes_files: HashToFiles = HashMap::new();
+    let mut hash_to_files_all: HashToFiles = HashMap::new();
 
     for entry in read_dir(dir)? {
         let entry = entry?;
@@ -49,15 +49,15 @@ pub fn compute_sha256_hashes(dir: PathBuf) -> Result<HashToFiles> {
             continue;
         }
 
-        let filepath = entry.path();
+        let file = entry.path();
 
-        if !is_valid_file_type(&filepath) {
+        if !is_valid_file_type(&file) {
             continue;
         }
 
-        let hash = compute_file_sha256(&filepath)?;
-        upsert_hash_and_filepath(&mut hashes_files, hash, filepath);
+        let hash = compute_file_sha256(&file)?;
+        upsert_hash_and_filepath(&mut hash_to_files_all, hash, file);
     }
 
-    Ok(hashes_files)
+    Ok(hash_to_files_all)
 }
