@@ -11,7 +11,7 @@ use clap::Parser;
 use delete_duplicates::delete_duplicate_files;
 use locate_duplicates::compute_sha256_hashes;
 use print_duplicates::print_duplicate_files;
-use sha256_filemap::SHA256FileMap;
+use sha256_filemap::{HashToFiles, empty, isolate_duplicates};
 
 #[derive(Parser, Debug)]
 #[command(
@@ -32,7 +32,7 @@ struct Cli {
 fn main() {
     let cli = Cli::parse();
 
-    let mut files: SHA256FileMap = match compute_sha256_hashes(cli.loc_duplicates) {
+    let hash_to_files_all: HashToFiles = match compute_sha256_hashes(cli.loc_duplicates) {
         Ok(files) => files,
         Err(error) => {
             eprintln!("{}", error);
@@ -40,16 +40,16 @@ fn main() {
         }
     };
 
-    files.isolate_duplicates();
+    let hash_to_files_dupes: HashToFiles = isolate_duplicates(hash_to_files_all);
 
-    if files.empty() {
+    if empty(&hash_to_files_dupes) {
         println!("No duplicates found");
         process::exit(0);
     }
 
     if cli.delete {
-        delete_duplicate_files(files);
+        delete_duplicate_files(&hash_to_files_dupes);
     } else {
-        print_duplicate_files(files);
+        print_duplicate_files(&hash_to_files_dupes);
     }
 }
