@@ -1,5 +1,7 @@
 use crate::errors::DeduplicationError;
+use crate::get_file_sha256::compute_file_sha256;
 
+use std::collections::HashMap;
 use std::fs;
 use std::io;
 use std::path::PathBuf;
@@ -36,6 +38,21 @@ fn isolate_image_files(files: Vec<PathBuf>) -> Vec<PathBuf> {
         .collect()
 }
 
+type HashToFiles = HashMap<String, Vec<PathBuf>>;
+
+fn get_image_file_sha256_hashes(files: Vec<PathBuf>) -> HashToFiles {
+    let mut hashes: HashToFiles = HashMap::new();
+
+    for file in files {
+        match compute_file_sha256(&file) {
+            Ok(hash) => hashes.entry(hash).or_default().push(file),
+            Err(e) => eprintln!("Could not get hash: {e}"),
+        }
+    }
+
+    hashes
+}
+
 pub fn locate_duplicates(dir: &PathBuf) -> Result<String, DeduplicationError> {
     let files = match locate_all_files(dir) {
         Ok(files) => files,
@@ -48,9 +65,7 @@ pub fn locate_duplicates(dir: &PathBuf) -> Result<String, DeduplicationError> {
         return Ok(String::from("No image files in directory"));
     }
 
-    for file in image_files {
-        println!("{}", file.display());
-    }
+    let _ = get_image_file_sha256_hashes(image_files);
 
     Ok(String::from("Complete!"))
 }
