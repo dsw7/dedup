@@ -4,17 +4,28 @@ use std::path::PathBuf;
 
 use crate::types::HashToFiles;
 
+fn print_option_range(index: usize) {
+    print!("Input an option [0 to {index}]: ");
+
+    io::stdout()
+        .flush()
+        .expect("Unrecoverable error: Failed to flush stdout");
+}
+
+fn read_input_from_stdin() -> String {
+    let mut input = String::new();
+
+    io::stdin()
+        .read_line(&mut input)
+        .expect("Unrecoverable error: Failed to read stdin");
+
+    input
+}
+
 fn get_index_from_stdin(index: usize) -> usize {
     loop {
-        print!("Input an option [0 to {index}]: ");
-        io::stdout()
-            .flush()
-            .expect("Unrecoverable error: Failed to flush stdout");
-
-        let mut input = String::new();
-        io::stdin()
-            .read_line(&mut input)
-            .expect("Unrecoverable error: Failed to read stdin");
+        print_option_range(index);
+        let input = read_input_from_stdin();
 
         match input.trim().parse() {
             Ok(option) => {
