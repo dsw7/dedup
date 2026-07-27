@@ -54,12 +54,10 @@ fn get_image_file_sha256_hashes(files: Vec<PathBuf>) -> HashToFiles {
 }
 
 fn isolate_duplicate_sha256_hashes(hashes: HashToFiles) -> HashToFiles {
-    let hash_to_files_dupes: HashToFiles = hashes
+    hashes
         .into_iter()
         .filter(|(_, files)| files.len() > 1)
-        .collect();
-
-    hash_to_files_dupes
+        .collect()
 }
 
 pub fn locate_duplicates(dir: &PathBuf) -> Result<String, DeduplicationError> {
