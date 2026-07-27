@@ -46,11 +46,20 @@ fn get_image_file_sha256_hashes(files: Vec<PathBuf>) -> HashToFiles {
     for file in files {
         match compute_file_sha256(&file) {
             Ok(hash) => hashes.entry(hash).or_default().push(file),
-            Err(e) => eprintln!("Could not get hash: {e}"),
+            Err(e) => eprintln!("Could not get hash for file '{}': {e}", file.display()),
         }
     }
 
     hashes
+}
+
+fn isolate_duplicate_sha256_hashes(hashes: HashToFiles) -> HashToFiles {
+    let hash_to_files_dupes: HashToFiles = hashes
+        .into_iter()
+        .filter(|(_, files)| files.len() > 1)
+        .collect();
+
+    hash_to_files_dupes
 }
 
 pub fn locate_duplicates(dir: &PathBuf) -> Result<String, DeduplicationError> {
@@ -65,7 +74,8 @@ pub fn locate_duplicates(dir: &PathBuf) -> Result<String, DeduplicationError> {
         return Ok(String::from("No image files in directory"));
     }
 
-    let _ = get_image_file_sha256_hashes(image_files);
+    let hashes = get_image_file_sha256_hashes(image_files);
+    let _ = isolate_duplicate_sha256_hashes(hashes);
 
     Ok(String::from("Complete!"))
 }
