@@ -27,18 +27,18 @@ fn get_option_from_stdin(max_index: usize) -> usize {
         print_option_range(max_index);
         let input = read_input_from_stdin();
 
-        match input.trim().parse() {
-            Ok(option) => {
-                if option > max_index {
-                    println!("Option cannot exceed {index}. Try again");
-                } else {
-                    return option;
-                }
-                // compiler knows that parse() attempts to convert input into a usize,
-                // so -1 will automatically return an Err variant which means no manual
-                // check is necessary
+        let option = match input.trim().parse::<usize>() {
+            Ok(option) => option,
+            Err(_) => {
+                println!("Not a valid option. Try again");
+                continue;
             }
-            Err(_) => println!("That is not a valid option. Please try again."),
+        };
+
+        if option > max_index {
+            println!("Option cannot exceed {max_index}. Try again");
+        } else {
+            return option;
         }
     }
 }
