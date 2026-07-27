@@ -1,5 +1,7 @@
 mod delete_duplicates;
+mod errors;
 mod get_file_hashes;
+mod locate_duplicates;
 mod print_duplicates;
 mod sha256_filemap;
 
@@ -10,6 +12,7 @@ use clap::Parser;
 
 use delete_duplicates::delete_duplicate_files;
 use get_file_hashes::compute_sha256_hashes;
+use locate_duplicates::locate_duplicates;
 use print_duplicates::print_duplicate_files;
 use sha256_filemap::{HashToFiles, empty, isolate_duplicates};
 
@@ -31,6 +34,8 @@ struct Cli {
 
 fn main() -> ExitCode {
     let cli = Cli::parse();
+
+    let _ = locate_duplicates(&cli.loc_duplicates);
 
     let hash_to_files_all: HashToFiles = match compute_sha256_hashes(cli.loc_duplicates) {
         Ok(files) => files,
