@@ -5,6 +5,7 @@ mod get_file_sha256;
 mod locate_duplicates;
 mod print_duplicates;
 mod sha256_filemap;
+mod types;
 
 use std::path::PathBuf;
 use std::process::ExitCode;
