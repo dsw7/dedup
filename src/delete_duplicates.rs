@@ -1,11 +1,11 @@
-use std::fs::remove_file;
+use std::fs;
 use std::io::{self, Write};
 use std::path::PathBuf;
 
 use crate::types::HashToFiles;
 
-fn print_option_range(index: usize) {
-    print!("Input an option [0 to {index}]: ");
+fn print_option_range(max_index: usize) {
+    print!("Input an option [0 to {max_index}]: ");
 
     io::stdout()
         .flush()
@@ -22,14 +22,14 @@ fn read_input_from_stdin() -> String {
     input
 }
 
-fn get_index_from_stdin(index: usize) -> usize {
+fn get_option_from_stdin(max_index: usize) -> usize {
     loop {
-        print_option_range(index);
+        print_option_range(max_index);
         let input = read_input_from_stdin();
 
         match input.trim().parse() {
             Ok(option) => {
-                if option > index {
+                if option > max_index {
                     println!("Option cannot exceed {index}. Try again");
                 } else {
                     return option;
@@ -44,7 +44,7 @@ fn get_index_from_stdin(index: usize) -> usize {
 }
 
 fn delete_single_file(file: &PathBuf) {
-    match remove_file(file) {
+    match fs::remove_file(file) {
         Ok(_) => println!(" (-) {}", file.display()),
         Err(error) => eprintln!("Cannot delete file '{}': {error}", file.display()),
     }
@@ -69,7 +69,7 @@ fn process_batch_of_duplicates(duplicate_files: &Vec<PathBuf>) {
         println!(" [{index}] -> Keep this file: {}", file.display());
     }
 
-    let option = get_index_from_stdin(index);
+    let option = get_option_from_stdin(index);
 
     if option == 0 {
         println!("Skipping this batch");
