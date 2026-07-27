@@ -1,16 +1,14 @@
-use std::fmt;
+use std::io;
+use thiserror::Error;
 
-#[derive(Debug, Clone)]
-pub struct DeduplicationError(pub String);
+#[derive(Error, Debug)]
+pub enum DedupError {
+    #[error("Disk read failed: {source}")]
+    Io {
+        #[from]
+        source: io::Error,
+    },
 
-impl From<String> for DeduplicationError {
-    fn from(message: String) -> Self {
-        DeduplicationError(message)
-    }
-}
-
-impl fmt::Display for DeduplicationError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.0)
-    }
+    #[error("The requested configuration item '{0}' was not found.")]
+    FilesNotFound(String),
 }
