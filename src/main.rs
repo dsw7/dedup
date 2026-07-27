@@ -1,7 +1,6 @@
-mod delete_duplicates;
 mod errors;
 mod locate_duplicates;
-mod print_duplicates;
+mod process_duplicates;
 mod types;
 
 use std::path::PathBuf;
@@ -9,10 +8,9 @@ use std::process::ExitCode;
 
 use clap::Parser;
 
-use delete_duplicates::delete_duplicate_files;
 use errors::DedupError;
 use locate_duplicates::locate_duplicates;
-use print_duplicates::print_duplicate_files;
+use process_duplicates::{delete_duplicate_files, print_duplicate_files};
 
 #[derive(Parser, Debug)]
 #[command(
