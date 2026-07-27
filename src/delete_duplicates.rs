@@ -45,28 +45,31 @@ fn delete_all_files_except(index_to_keep: usize, files: &Vec<PathBuf>) {
     }
 }
 
+fn process_batch_of_duplicates(duplicate_files: &Vec<PathBuf>) {
+    let mut index = 0;
+    println!(" [{index}] -> Skip this batch");
+
+    for file in duplicate_files {
+        index += 1;
+        println!(" [{index}] -> Keep this file: {}", file.display());
+    }
+
+    match get_index_from_stdin(index) {
+        Ok(option) => {
+            if option == 0 {
+                println!("Skipping this batch");
+            } else {
+                delete_all_files_except(option, duplicate_files);
+            }
+        }
+        Err(error) => eprintln!("{error}"),
+    }
+}
+
 pub fn delete_duplicate_files(duplicates: &HashToFiles) {
     for (hash, filenames) in duplicates {
         println!("Found duplicates with hash: {hash}");
-        println!(" [0] -> Skip this batch");
-
-        let mut index = 0;
-        for file in filenames {
-            index += 1;
-            println!(" [{index}] -> Keep this file: {}", file.display());
-        }
-
-        match get_index_from_stdin(index) {
-            Ok(option) => {
-                if option == 0 {
-                    println!("Skipping this batch");
-                } else {
-                    delete_all_files_except(option, filenames);
-                }
-            }
-            Err(error) => eprintln!("{error}"),
-        }
-
+        process_batch_of_duplicates(&filenames);
         println!("");
     }
 }
