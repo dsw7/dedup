@@ -3,12 +3,12 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum DedupError {
-    #[error("Disk read failed: {source}")]
+    #[error("An I/O error occurred: {source}")]
     Io {
         #[from]
         source: io::Error,
     },
 
-    #[error("The requested configuration item '{0}' was not found.")]
+    #[error("{}")]
     FilesNotFound(String),
 }
