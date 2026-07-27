@@ -4,7 +4,7 @@ mod print_duplicates;
 mod sha256_filemap;
 
 use std::path::PathBuf;
-use std::process;
+use std::process::ExitCode;
 
 use clap::Parser;
 
@@ -29,14 +29,14 @@ struct Cli {
     delete: bool,
 }
 
-fn main() {
+fn main() -> ExitCode {
     let cli = Cli::parse();
 
     let hash_to_files_all: HashToFiles = match compute_sha256_hashes(cli.loc_duplicates) {
         Ok(files) => files,
         Err(error) => {
             eprintln!("{}", error);
-            process::exit(1);
+            return ExitCode::FAILURE;
         }
     };
 
@@ -44,7 +44,7 @@ fn main() {
 
     if empty(&hash_to_files_dupes) {
         println!("No duplicates found");
-        process::exit(0);
+        return ExitCode::SUCCESS;
     }
 
     if cli.delete {
@@ -52,4 +52,6 @@ fn main() {
     } else {
         print_duplicate_files(&hash_to_files_dupes);
     }
+
+    ExitCode::SUCCESS
 }
