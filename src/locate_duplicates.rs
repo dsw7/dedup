@@ -20,15 +20,19 @@ fn locate_all_files(dir: &PathBuf) -> io::Result<Vec<PathBuf>> {
     Ok(files)
 }
 
-fn isolate_image_files(files: Vec<PathBuf>) -> Vec<PathBuf> {
+fn is_image_file(filepath: &PathBuf) -> bool {
     static VALID_EXTENSIONS: [&str; 7] = ["png", "jpg", "jpeg", "gif", "bmp", "tiff", "webp"];
 
+    filepath
+        .extension()
+        .and_then(|ext| ext.to_str())
+        .map_or(false, |ext| VALID_EXTENSIONS.contains(&ext))
+}
+
+fn isolate_image_files(files: Vec<PathBuf>) -> Vec<PathBuf> {
     files
         .into_iter()
-        .filter(|file| {
-            file.extension()
-                .map_or(false, |ext| VALID_EXTENSIONS.iter().any(|&e| ext == e))
-        })
+        .filter(|file| is_image_file(&file))
         .collect()
 }
 
