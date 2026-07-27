@@ -1,13 +1,15 @@
+use sha2::{Digest, Sha256};
+
 use crate::errors::DedupError;
-use crate::get_file_sha256::compute_file_sha256;
 use crate::types::HashToFiles;
 
 use std::collections::HashMap;
 use std::fs;
-use std::io;
+use std::io::{self, BufReader, Read};
 use std::path::PathBuf;
 
 const VALID_EXTENSIONS: [&str; 7] = ["png", "jpg", "jpeg", "gif", "bmp", "tiff", "webp"];
+const CHUNK_BUF_SIZE: usize = 65536;
 
 fn locate_all_files(dir: &PathBuf) -> io::Result<Vec<PathBuf>> {
     let entries = fs::read_dir(dir)?;
@@ -37,6 +39,26 @@ fn isolate_image_files(files: Vec<PathBuf>) -> Vec<PathBuf> {
         .into_iter()
         .filter(|file| is_image_file(&file))
         .collect()
+}
+
+fn compute_file_sha256(file: &PathBuf) -> io::Result<String> {
+    let file_handle = fs::File::open(file)?;
+
+    let mut reader = BufReader::new(file_handle);
+    let mut hasher = Sha256::new();
+    let mut buffer = [0u8; CHUNK_BUF_SIZE];
+
+    loop {
+        let bytes_read = reader.read(&mut buffer)?;
+        if bytes_read == 0 {
+            break;
+        }
+
+        hasher.update(&buffer[..bytes_read]);
+    }
+
+    let hash_result = hasher.finalize();
+    Ok(format!("{:x}", hash_result))
 }
 
 fn get_image_file_sha256_hashes(files: Vec<PathBuf>) -> HashToFiles {
