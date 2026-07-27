@@ -9,6 +9,6 @@ pub enum DedupError {
         source: io::Error,
     },
 
-    #[error("{}")]
+    #[error("{0}")]
     FilesNotFound(String),
 }
