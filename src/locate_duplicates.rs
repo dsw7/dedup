@@ -39,7 +39,6 @@ fn isolate_image_files(files: Vec<PathBuf>) -> Vec<PathBuf> {
         .collect()
 }
 
-
 fn get_image_file_sha256_hashes(files: Vec<PathBuf>) -> HashToFiles {
     let mut hashes: HashToFiles = HashMap::new();
 
