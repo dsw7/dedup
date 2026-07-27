@@ -1,7 +1,8 @@
 mod delete_duplicates;
-mod get_file_hashes;
+mod errors;
+mod locate_duplicates;
 mod print_duplicates;
-mod sha256_filemap;
+mod types;
 
 use std::path::PathBuf;
 use std::process::ExitCode;
@@ -9,9 +10,9 @@ use std::process::ExitCode;
 use clap::Parser;
 
 use delete_duplicates::delete_duplicate_files;
-use get_file_hashes::compute_sha256_hashes;
+use errors::DedupError;
+use locate_duplicates::locate_duplicates;
 use print_duplicates::print_duplicate_files;
-use sha256_filemap::{HashToFiles, empty, isolate_duplicates};
 
 #[derive(Parser, Debug)]
 #[command(
@@ -29,29 +30,28 @@ struct Cli {
     delete: bool,
 }
 
-fn main() -> ExitCode {
+fn process_directory() -> Result<(), DedupError> {
     let cli = Cli::parse();
-
-    let hash_to_files_all: HashToFiles = match compute_sha256_hashes(cli.loc_duplicates) {
-        Ok(files) => files,
-        Err(error) => {
-            eprintln!("{}", error);
-            return ExitCode::FAILURE;
-        }
-    };
-
-    let hash_to_files_dupes: HashToFiles = isolate_duplicates(hash_to_files_all);
-
-    if empty(&hash_to_files_dupes) {
-        println!("No duplicates found");
-        return ExitCode::SUCCESS;
-    }
+    let hashes = locate_duplicates(&cli.loc_duplicates)?;
 
     if cli.delete {
-        delete_duplicate_files(&hash_to_files_dupes);
+        delete_duplicate_files(&hashes);
     } else {
-        print_duplicate_files(&hash_to_files_dupes);
+        print_duplicate_files(&hashes);
     }
 
-    ExitCode::SUCCESS
+    Ok(())
+}
+
+fn main() -> ExitCode {
+    match process_directory() {
+        Ok(()) => {
+            println!("Complete!");
+            ExitCode::SUCCESS
+        }
+        Err(error) => {
+            eprintln!("{error}");
+            ExitCode::FAILURE
+        }
+    }
 }

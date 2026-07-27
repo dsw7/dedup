@@ -1,4 +1,4 @@
-use crate::sha256_filemap::HashToFiles;
+use crate::types::HashToFiles;
 
 pub fn print_duplicate_files(hash_to_files_dupes: &HashToFiles) {
     for (hash, filenames) in hash_to_files_dupes {
