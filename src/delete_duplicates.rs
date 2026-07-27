@@ -45,8 +45,8 @@ fn delete_all_files_except(index_to_keep: usize, files: &Vec<PathBuf>) {
     }
 }
 
-pub fn delete_duplicate_files(hash_to_files_dupes: &HashToFiles) {
-    for (hash, filenames) in hash_to_files_dupes {
+pub fn delete_duplicate_files(duplicates: &HashToFiles) {
+    for (hash, filenames) in duplicates {
         println!("Found duplicates with hash: {hash}");
         println!(" [0] -> Skip this batch");
 
