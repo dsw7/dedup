@@ -2,7 +2,7 @@ use std::fs::remove_file;
 use std::io::{self, Result, Write};
 use std::path::PathBuf;
 
-use crate::sha256_filemap::HashToFiles;
+use crate::types::HashToFiles;
 
 fn get_index_from_stdin(index: usize) -> Result<usize> {
     loop {
