@@ -1,6 +1,7 @@
 mod delete_duplicates;
 mod errors;
 mod get_file_hashes;
+mod get_file_sha256;
 mod locate_duplicates;
 mod print_duplicates;
 mod sha256_filemap;
