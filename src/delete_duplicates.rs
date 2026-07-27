@@ -1,23 +1,27 @@
 use std::fs::remove_file;
-use std::io::{self, Result, Write};
+use std::io::{self, Write};
 use std::path::PathBuf;
 
 use crate::types::HashToFiles;
 
-fn get_index_from_stdin(index: usize) -> Result<usize> {
+fn get_index_from_stdin(index: usize) -> usize {
     loop {
         print!("Input an option [0 to {index}]: ");
-        io::stdout().flush()?;
+        io::stdout()
+            .flush()
+            .expect("Unrecoverable error: Failed to flush stdout");
 
         let mut input = String::new();
-        io::stdin().read_line(&mut input)?;
+        io::stdin()
+            .read_line(&mut input)
+            .expect("Unrecoverable error: Failed to read stdin");
 
         match input.trim().parse() {
             Ok(option) => {
                 if option > index {
                     println!("Option cannot exceed {index}. Try again");
                 } else {
-                    return Ok(option);
+                    return option;
                 }
                 // compiler knows that parse() attempts to convert input into a usize,
                 // so -1 will automatically return an Err variant which means no manual
@@ -54,15 +58,12 @@ fn process_batch_of_duplicates(duplicate_files: &Vec<PathBuf>) {
         println!(" [{index}] -> Keep this file: {}", file.display());
     }
 
-    match get_index_from_stdin(index) {
-        Ok(option) => {
-            if option == 0 {
-                println!("Skipping this batch");
-            } else {
-                delete_all_files_except(option, duplicate_files);
-            }
-        }
-        Err(error) => eprintln!("{error}"),
+    let option = get_index_from_stdin(index);
+
+    if option == 0 {
+        println!("Skipping this batch");
+    } else {
+        delete_all_files_except(option, duplicate_files);
     }
 }
 
