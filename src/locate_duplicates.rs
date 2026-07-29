@@ -6,7 +6,7 @@ use crate::types::HashToFiles;
 use std::collections::HashMap;
 use std::fs;
 use std::io::{self, BufReader, Read};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 const VALID_EXTENSIONS: [&str; 7] = ["png", "jpg", "jpeg", "gif", "bmp", "tiff", "webp"];
 const CHUNK_BUF_SIZE: usize = 65536;
@@ -27,17 +27,17 @@ fn locate_all_files(dir: &PathBuf) -> io::Result<Vec<PathBuf>> {
     Ok(files)
 }
 
-fn is_image_file(filepath: &PathBuf) -> bool {
+fn is_image_file(filepath: &Path) -> bool {
     filepath
         .extension()
         .and_then(|ext| ext.to_str())
-        .map_or(false, |ext| VALID_EXTENSIONS.contains(&ext))
+        .is_some_and(|ext| VALID_EXTENSIONS.contains(&ext))
 }
 
 fn isolate_image_files(files: Vec<PathBuf>) -> Vec<PathBuf> {
     files
         .into_iter()
-        .filter(|file| is_image_file(&file))
+        .filter(|file| is_image_file(file))
         .collect()
 }
 
@@ -58,7 +58,7 @@ fn compute_file_sha256(file: &PathBuf) -> io::Result<String> {
     }
 
     let hash_result = hasher.finalize();
-    Ok(format!("{:x}", hash_result))
+    Ok(format!("{hash_result:x}"))
 }
 
 fn get_image_file_sha256_hashes(files: Vec<PathBuf>) -> HashToFiles {

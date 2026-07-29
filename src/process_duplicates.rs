@@ -50,7 +50,7 @@ fn delete_single_file(file: &PathBuf) {
     }
 }
 
-fn delete_all_files_except(index_to_keep: usize, files: &Vec<PathBuf>) {
+fn delete_all_files_except(index_to_keep: usize, files: &[PathBuf]) {
     for (index, file) in files.iter().enumerate() {
         if index_to_keep - 1 == index {
             println!(" (+) {}", file.display());
@@ -81,8 +81,8 @@ fn process_batch_of_duplicates(duplicate_files: &Vec<PathBuf>) {
 pub fn delete_duplicate_files(duplicates: &HashToFiles) {
     for (hash, filenames) in duplicates {
         println!("Found duplicates with hash: {hash}");
-        process_batch_of_duplicates(&filenames);
-        println!("");
+        process_batch_of_duplicates(filenames);
+        println!();
     }
 }
 
@@ -93,6 +93,6 @@ pub fn print_duplicate_files(duplicates: &HashToFiles) {
         for file in filenames {
             println!("  -> {}", file.display());
         }
-        println!("");
+        println!();
     }
 }
