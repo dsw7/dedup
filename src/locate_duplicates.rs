@@ -31,7 +31,8 @@ fn is_image_file(filepath: &Path) -> bool {
     filepath
         .extension()
         .and_then(|ext| ext.to_str())
-        .is_some_and(|ext| VALID_EXTENSIONS.contains(&ext))
+        .map(|ext| ext.to_lowercase())
+        .is_some_and(|ext| VALID_EXTENSIONS.contains(&ext.as_str()))
 }
 
 fn isolate_image_files(files: Vec<PathBuf>) -> Vec<PathBuf> {
