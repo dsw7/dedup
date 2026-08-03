@@ -47,7 +47,7 @@ fn main() -> ExitCode {
     match process_directory() {
         Ok(()) => ExitCode::SUCCESS,
         Err(error) => {
-            eprintln!("{error}");
+            eprintln!("{error:?}");
             ExitCode::FAILURE
         }
     }
