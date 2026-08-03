@@ -87,14 +87,22 @@ fn isolate_duplicate_sha256_hashes(hashes: HashToFiles) -> HashToFiles {
         .collect()
 }
 
-pub fn locate_duplicates(dir: &PathBuf) -> anyhow::Result<HashToFiles> {
+pub fn locate_duplicates(dir: &PathBuf) -> anyhow::Result<Option<HashToFiles>> {
     let files = locate_all_files(dir)?;
     let image_files = isolate_image_files(files);
 
     if image_files.is_empty() {
-        anyhow::bail!("No image files in directory");
+        println!("No image files in directory");
+        return Ok(None);
     }
 
     let hashes = get_image_file_sha256_hashes(image_files);
-    Ok(isolate_duplicate_sha256_hashes(hashes))
+    let duplicate_hashes = isolate_duplicate_sha256_hashes(hashes);
+
+    if duplicate_hashes.is_empty() {
+        println!("No duplicate image files found");
+        return Ok(None);
+    }
+
+    Ok(Some(duplicate_hashes))
 }

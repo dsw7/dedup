@@ -28,12 +28,16 @@ struct Cli {
 
 fn process_directory() -> anyhow::Result<()> {
     let cli = Cli::parse();
-    let hashes = locate_duplicates(&cli.loc_duplicates)?;
+
+    let duplicates = match locate_duplicates(&cli.loc_duplicates)? {
+        Some(hashes) => hashes,
+        None => return Ok(()),
+    };
 
     if cli.delete {
-        delete_duplicate_files(&hashes);
+        delete_duplicate_files(&duplicates);
     } else {
-        print_duplicate_files(&hashes);
+        print_duplicate_files(&duplicates);
     }
 
     Ok(())
@@ -41,10 +45,7 @@ fn process_directory() -> anyhow::Result<()> {
 
 fn main() -> ExitCode {
     match process_directory() {
-        Ok(()) => {
-            println!("Complete!");
-            ExitCode::SUCCESS
-        }
+        Ok(()) => ExitCode::SUCCESS,
         Err(error) => {
             eprintln!("{error}");
             ExitCode::FAILURE
