@@ -1,12 +1,12 @@
-use anyhow::Context;
-use sha2::{Digest, Sha256};
-
-use crate::types::HashToFiles;
-
 use std::collections::HashMap;
 use std::fs;
 use std::io::{BufReader, Read};
 use std::path::{Path, PathBuf};
+
+use anyhow::Context;
+use sha2::{Digest, Sha256};
+
+use crate::types::HashToFiles;
 
 const VALID_EXTENSIONS: [&str; 7] = ["png", "jpg", "jpeg", "gif", "bmp", "tiff", "webp"];
 const CHUNK_BUF_SIZE: usize = 65536;
