@@ -56,6 +56,7 @@ fn compute_file_sha256(file: &PathBuf) -> anyhow::Result<String> {
             "Failed to read bytes from file: {}",
             file.display()
         ))?;
+
         if bytes_read == 0 {
             break;
         }
@@ -88,7 +89,7 @@ fn isolate_duplicate_sha256_hashes(hashes: HashToFiles) -> HashToFiles {
 }
 
 pub fn locate_duplicates(dir: &PathBuf) -> anyhow::Result<Option<HashToFiles>> {
-    let files = locate_all_files(dir)?;
+    let files = locate_all_files(dir).context("Cannot locate image files")?;
     let image_files = isolate_image_files(files);
 
     if image_files.is_empty() {

@@ -17,8 +17,8 @@ fn get_option_from_stdin(max_index: usize) -> usize {
     loop {
         let input = match read_input_from_stdin(max_index) {
             Ok(input) => input,
-            Err(e) => {
-                eprintln!("Something went wrong when working with I/O: {e}");
+            Err(error) => {
+                eprintln!("Something went wrong when working with I/O: {error}");
                 continue;
             }
         };
