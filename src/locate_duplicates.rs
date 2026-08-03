@@ -1,18 +1,19 @@
+use anyhow::Context;
 use sha2::{Digest, Sha256};
 
-use crate::errors::DedupError;
 use crate::types::HashToFiles;
 
 use std::collections::HashMap;
 use std::fs;
-use std::io::{self, BufReader, Read};
+use std::io::{BufReader, Read};
 use std::path::{Path, PathBuf};
 
 const VALID_EXTENSIONS: [&str; 7] = ["png", "jpg", "jpeg", "gif", "bmp", "tiff", "webp"];
 const CHUNK_BUF_SIZE: usize = 65536;
 
-fn locate_all_files(dir: &PathBuf) -> io::Result<Vec<PathBuf>> {
-    let entries = fs::read_dir(dir)?;
+fn locate_all_files(dir: &PathBuf) -> anyhow::Result<Vec<PathBuf>> {
+    let entries =
+        fs::read_dir(dir).context(format!("Failed to read directory: {}", dir.display()))?;
 
     let mut files = Vec::new();
     for entry in entries {
@@ -42,15 +43,19 @@ fn isolate_image_files(files: Vec<PathBuf>) -> Vec<PathBuf> {
         .collect()
 }
 
-fn compute_file_sha256(file: &PathBuf) -> io::Result<String> {
-    let file_handle = fs::File::open(file)?;
+fn compute_file_sha256(file: &PathBuf) -> anyhow::Result<String> {
+    let file_handle =
+        fs::File::open(file).context(format!("Failed to open file: {}", file.display()))?;
 
     let mut reader = BufReader::new(file_handle);
     let mut hasher = Sha256::new();
     let mut buffer = [0u8; CHUNK_BUF_SIZE];
 
     loop {
-        let bytes_read = reader.read(&mut buffer)?;
+        let bytes_read = reader.read(&mut buffer).context(format!(
+            "Failed to read bytes from file: {}",
+            file.display()
+        ))?;
         if bytes_read == 0 {
             break;
         }
@@ -82,14 +87,12 @@ fn isolate_duplicate_sha256_hashes(hashes: HashToFiles) -> HashToFiles {
         .collect()
 }
 
-pub fn locate_duplicates(dir: &PathBuf) -> Result<HashToFiles, DedupError> {
+pub fn locate_duplicates(dir: &PathBuf) -> anyhow::Result<HashToFiles> {
     let files = locate_all_files(dir)?;
     let image_files = isolate_image_files(files);
 
     if image_files.is_empty() {
-        return Err(DedupError::FilesNotFound(String::from(
-            "No image files in directory",
-        )));
+        anyhow::bail!("No image files in directory");
     }
 
     let hashes = get_image_file_sha256_hashes(image_files);

@@ -28,7 +28,7 @@ struct Cli {
     delete: bool,
 }
 
-fn process_directory() -> Result<(), DedupError> {
+fn process_directory() -> anyhow::Result<()> {
     let cli = Cli::parse();
     let hashes = locate_duplicates(&cli.loc_duplicates)?;
 
