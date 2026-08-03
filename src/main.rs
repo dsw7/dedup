@@ -1,4 +1,3 @@
-mod errors;
 mod locate_duplicates;
 mod process_duplicates;
 mod types;
@@ -8,7 +7,6 @@ use std::process::ExitCode;
 
 use clap::Parser;
 
-use errors::DedupError;
 use locate_duplicates::locate_duplicates;
 use process_duplicates::{delete_duplicate_files, print_duplicate_files};
 
