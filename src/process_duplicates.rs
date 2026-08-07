@@ -74,15 +74,15 @@ fn process_batch_of_duplicates(duplicate_files: &Vec<PathBuf>) {
     }
 }
 
-pub fn delete_duplicate_files(duplicates: &HashToFiles) {
+pub fn delete_duplicate_files(duplicates: HashToFiles) {
     for (hash, filenames) in duplicates {
         println!("Found duplicates with hash: {hash}");
-        process_batch_of_duplicates(filenames);
+        process_batch_of_duplicates(&filenames);
         println!();
     }
 }
 
-pub fn print_duplicate_files(duplicates: &HashToFiles) {
+pub fn print_duplicate_files(duplicates: HashToFiles) {
     for (hash, filenames) in duplicates {
         println!("Found duplicates with hash: {hash}");
 

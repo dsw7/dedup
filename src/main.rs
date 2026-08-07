@@ -35,9 +35,9 @@ fn process_directory() -> anyhow::Result<()> {
     };
 
     if cli.delete {
-        delete_duplicate_files(&duplicates);
+        delete_duplicate_files(duplicates);
     } else {
-        print_duplicate_files(&duplicates);
+        print_duplicate_files(duplicates);
     }
 
     Ok(())
