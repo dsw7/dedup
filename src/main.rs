@@ -22,8 +22,8 @@ struct Cli {
     #[arg(value_name = "DIR", default_value = ".")]
     loc_duplicates: PathBuf,
 
-    #[arg(short, long, help = "Delete the files (disabled by default)")]
-    delete: bool,
+    #[arg(long, help = "Dry run (print duplicates without deleting)")]
+    dry_run: bool,
 }
 
 fn process_directory() -> anyhow::Result<()> {
@@ -34,10 +34,10 @@ fn process_directory() -> anyhow::Result<()> {
         None => return Ok(()),
     };
 
-    if cli.delete {
-        delete_duplicate_files(duplicates);
-    } else {
+    if cli.dry_run {
         print_duplicate_files(duplicates);
+    } else {
+        delete_duplicate_files(duplicates);
     }
 
     Ok(())

@@ -13,8 +13,8 @@ parse EXIF metadata.
 
 - [Build](#build)
 - [Usage](#usage)
-  - [List but do not delete duplicates](#list-but-do-not-delete-duplicates)
-  - [List and delete duplicates](#list-and-delete-duplicates)
+  - [Delete duplicates (default)](#delete-duplicates-default)
+  - [Preview duplicates without deleting](#preview-duplicates-without-deleting)
 - [License](#license)
 
 ## Build
@@ -26,8 +26,8 @@ Which will build a release binary and install it under `~/.local/bin`.
 
 ## Usage
 
-### List but do not delete duplicates
-This is the default. Run
+### Delete duplicates (default)
+Run:
 ```bash
 dedup /path/to/directory
 ```
@@ -35,15 +35,15 @@ Or just:
 ```bash
 dedup
 ```
-To scan the current directory.
+To scan the current directory. This will locate the duplicates and
+interactively ask which file should be kept, then delete the duplicates.
 
-### List and delete duplicates
-Run:
+### Preview duplicates without deleting
+To preview duplicates without deleting them, use the `--dry-run` flag:
 ```bash
-dedup /path/to/directory --delete # or -d
+dedup /path/to/directory --dry-run
 ```
-This will locate the duplicates and interactively ask which file should be
-kept.
+This will locate and print the duplicates without deleting anything.
 
 ## License
 
