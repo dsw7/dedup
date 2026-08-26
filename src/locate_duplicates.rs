@@ -13,7 +13,7 @@ const CHUNK_BUF_SIZE: usize = 65536;
 
 fn locate_all_files(dir: &PathBuf) -> anyhow::Result<Vec<PathBuf>> {
     let entries =
-        fs::read_dir(dir).context(format!("Failed to read directory: {}", dir.display()))?;
+        fs::read_dir(dir).context(format!("failed to read directory: {}", dir.display()))?;
 
     let mut files = Vec::new();
     for entry in entries {
@@ -45,7 +45,7 @@ fn isolate_image_files(files: Vec<PathBuf>) -> Vec<PathBuf> {
 
 fn compute_file_sha256(file: &PathBuf) -> anyhow::Result<String> {
     let file_handle =
-        fs::File::open(file).context(format!("Failed to open file: {}", file.display()))?;
+        fs::File::open(file).context(format!("failed to open file: {}", file.display()))?;
 
     let mut reader = BufReader::new(file_handle);
     let mut hasher = Sha256::new();
@@ -53,7 +53,7 @@ fn compute_file_sha256(file: &PathBuf) -> anyhow::Result<String> {
 
     loop {
         let bytes_read = reader.read(&mut buffer).context(format!(
-            "Failed to read bytes from file: {}",
+            "failed to read bytes from file: {}",
             file.display()
         ))?;
 
