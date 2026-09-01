@@ -1,40 +1,11 @@
 use std::collections::HashMap;
-use std::fs;
-use std::io::{BufReader, Read};
+use std::fs::read_dir;
 use std::path::PathBuf;
 
 use anyhow::Context;
-use sha2::{Digest, Sha256};
 
 use crate::types::HashToFiles;
 use crate::utils;
-
-const CHUNK_BUF_SIZE: usize = 65536;
-
-fn compute_file_sha256(file: &PathBuf) -> anyhow::Result<String> {
-    let file_handle =
-        fs::File::open(file).context(format!("failed to open file: {}", file.display()))?;
-
-    let mut reader = BufReader::new(file_handle);
-    let mut hasher = Sha256::new();
-    let mut buffer = [0u8; CHUNK_BUF_SIZE];
-
-    loop {
-        let bytes_read = reader.read(&mut buffer).context(format!(
-            "failed to read bytes from file: {}",
-            file.display()
-        ))?;
-
-        if bytes_read == 0 {
-            break;
-        }
-
-        hasher.update(&buffer[..bytes_read]);
-    }
-
-    let hash_result = hasher.finalize();
-    Ok(format!("{hash_result:x}"))
-}
 
 #[derive(Debug)]
 struct ImageFiles {
@@ -48,7 +19,7 @@ impl ImageFiles {
 
     fn locate_all_files(mut self, dir: &PathBuf) -> anyhow::Result<Self> {
         let entries =
-            fs::read_dir(dir).context(format!("failed to read directory: {}", dir.display()))?;
+            read_dir(dir).context(format!("failed to read directory: {}", dir.display()))?;
 
         for entry in entries {
             let entry = entry?;
@@ -80,7 +51,7 @@ fn get_image_file_sha256_hashes(files: Vec<PathBuf>) -> HashToFiles {
     let mut hashes: HashToFiles = HashMap::new();
 
     for file in files {
-        match compute_file_sha256(&file) {
+        match utils::compute_file_sha256(&file) {
             Ok(hash) => hashes.entry(hash).or_default().push(file),
             Err(e) => eprintln!("Could not get hash for file '{}': {e}", file.display()),
         }
