@@ -66,6 +66,14 @@ impl ImageFiles {
         self.files.retain(|file| is_image_file(file));
         self
     }
+
+    fn get_image_files_or_none(self) -> Option<Vec<PathBuf>> {
+        if self.files.is_empty() {
+            None
+        } else {
+            Some(self.files)
+        }
+    }
 }
 
 fn isolate_image_files(files: Vec<PathBuf>) -> Vec<PathBuf> {
@@ -121,8 +129,12 @@ fn isolate_duplicate_sha256_hashes(hashes: HashToFiles) -> HashToFiles {
 }
 
 pub fn locate_duplicates(dir: &PathBuf) -> anyhow::Result<Option<HashToFiles>> {
-    let files_obj = ImageFiles::new().locate_all_files(dir)?;
-    println!("{files_obj:#?}");
+    let image_files = ImageFiles::new()
+        .locate_all_files(dir)?
+        .filter_image_files()
+        .get_image_files_or_none();
+
+    println!("{image_files:#?}");
 
     let files = locate_all_files(dir).context("Cannot locate image files")?;
     let image_files = isolate_image_files(files);
