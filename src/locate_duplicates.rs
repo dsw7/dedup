@@ -47,6 +47,36 @@ impl ImageFiles {
     }
 }
 
+#[derive(Debug)]
+struct Duplicates {
+    hashes: HashMap<String, Vec<PathBuf>>,
+}
+
+impl Duplicates {
+    fn new() -> Self {
+        Duplicates {
+            hashes: HashMap::new(),
+        }
+    }
+
+    fn get_image_file_hashes(mut self, files: Vec<PathBuf>) -> Self {
+        for file in files {
+            match utils::compute_file_sha256(&file) {
+                Ok(hash) => self.hashes.entry(hash).or_default().push(file),
+                Err(error) => {
+                    eprintln!("Could not get hash for file '{}': {error}", file.display())
+                }
+            }
+        }
+        self
+    }
+
+    fn locate_duplicate_files(mut self) -> Self {
+        self.hashes.retain(|_, files| files.len() > 1);
+        self
+    }
+}
+
 fn get_image_file_sha256_hashes(files: Vec<PathBuf>) -> HashToFiles {
     let mut hashes: HashToFiles = HashMap::new();
 
