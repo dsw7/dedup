@@ -75,26 +75,14 @@ impl Duplicates {
         self.hashes.retain(|_, files| files.len() > 1);
         self
     }
-}
 
-fn get_image_file_sha256_hashes(files: Vec<PathBuf>) -> HashToFiles {
-    let mut hashes: HashToFiles = HashMap::new();
-
-    for file in files {
-        match utils::compute_file_sha256(&file) {
-            Ok(hash) => hashes.entry(hash).or_default().push(file),
-            Err(e) => eprintln!("Could not get hash for file '{}': {e}", file.display()),
+    fn get_duplicate_files_or_none(self) -> Option<HashMap<String, Vec<PathBuf>>> {
+        if self.hashes.is_empty() {
+            None
+        } else {
+            Some(self.hashes)
         }
     }
-
-    hashes
-}
-
-fn isolate_duplicate_sha256_hashes(hashes: HashToFiles) -> HashToFiles {
-    hashes
-        .into_iter()
-        .filter(|(_, files)| files.len() > 1)
-        .collect()
 }
 
 pub fn locate_duplicates(dir: &PathBuf) -> anyhow::Result<Option<HashToFiles>> {
@@ -111,13 +99,10 @@ pub fn locate_duplicates(dir: &PathBuf) -> anyhow::Result<Option<HashToFiles>> {
         Some(files) => files,
     };
 
-    let hashes = get_image_file_sha256_hashes(image_files);
-    let duplicate_hashes = isolate_duplicate_sha256_hashes(hashes);
+    let duplicates = Duplicates::new()
+        .get_image_file_hashes(image_files)
+        .locate_duplicate_files()
+        .get_duplicate_files_or_none();
 
-    if duplicate_hashes.is_empty() {
-        println!("No duplicate image files found");
-        return Ok(None);
-    }
-
-    Ok(Some(duplicate_hashes))
+    Ok(duplicates)
 }
