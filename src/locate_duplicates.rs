@@ -1,22 +1,39 @@
 use std::collections::HashMap;
 use std::fs;
 use std::io::{BufReader, Read};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use anyhow::Context;
 use sha2::{Digest, Sha256};
 
 use crate::types::HashToFiles;
+use crate::utils;
 
-const VALID_EXTENSIONS: [&str; 7] = ["png", "jpg", "jpeg", "gif", "bmp", "tiff", "webp"];
 const CHUNK_BUF_SIZE: usize = 65536;
 
-fn is_image_file(filepath: &Path) -> bool {
-    filepath
-        .extension()
-        .and_then(|ext| ext.to_str())
-        .map(|ext| ext.to_lowercase())
-        .is_some_and(|ext| VALID_EXTENSIONS.contains(&ext.as_str()))
+fn compute_file_sha256(file: &PathBuf) -> anyhow::Result<String> {
+    let file_handle =
+        fs::File::open(file).context(format!("failed to open file: {}", file.display()))?;
+
+    let mut reader = BufReader::new(file_handle);
+    let mut hasher = Sha256::new();
+    let mut buffer = [0u8; CHUNK_BUF_SIZE];
+
+    loop {
+        let bytes_read = reader.read(&mut buffer).context(format!(
+            "failed to read bytes from file: {}",
+            file.display()
+        ))?;
+
+        if bytes_read == 0 {
+            break;
+        }
+
+        hasher.update(&buffer[..bytes_read]);
+    }
+
+    let hash_result = hasher.finalize();
+    Ok(format!("{hash_result:x}"))
 }
 
 #[derive(Debug)]
@@ -46,7 +63,7 @@ impl ImageFiles {
     }
 
     fn filter_image_files(mut self) -> Self {
-        self.files.retain(|file| is_image_file(file));
+        self.files.retain(|file| utils::is_image_file(file));
         self
     }
 
@@ -57,31 +74,6 @@ impl ImageFiles {
             Some(self.files)
         }
     }
-}
-
-fn compute_file_sha256(file: &PathBuf) -> anyhow::Result<String> {
-    let file_handle =
-        fs::File::open(file).context(format!("failed to open file: {}", file.display()))?;
-
-    let mut reader = BufReader::new(file_handle);
-    let mut hasher = Sha256::new();
-    let mut buffer = [0u8; CHUNK_BUF_SIZE];
-
-    loop {
-        let bytes_read = reader.read(&mut buffer).context(format!(
-            "failed to read bytes from file: {}",
-            file.display()
-        ))?;
-
-        if bytes_read == 0 {
-            break;
-        }
-
-        hasher.update(&buffer[..bytes_read]);
-    }
-
-    let hash_result = hasher.finalize();
-    Ok(format!("{hash_result:x}"))
 }
 
 fn get_image_file_sha256_hashes(files: Vec<PathBuf>) -> HashToFiles {

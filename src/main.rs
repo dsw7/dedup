@@ -1,6 +1,7 @@
 mod locate_duplicates;
 mod process_duplicates;
 mod types;
+mod utils;
 
 use std::path::PathBuf;
 use std::process::ExitCode;
