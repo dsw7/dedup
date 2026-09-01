@@ -2,7 +2,6 @@ mod duplicates;
 mod image_files;
 mod process_duplicates;
 mod types;
-mod utils;
 
 use std::path::PathBuf;
 use std::process::ExitCode;

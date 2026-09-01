@@ -1,9 +1,17 @@
 use std::fs::read_dir;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use anyhow::Context;
 
-use crate::utils;
+const VALID_EXTENSIONS: [&str; 7] = ["png", "jpg", "jpeg", "gif", "bmp", "tiff", "webp"];
+
+fn is_image_file(filepath: &Path) -> bool {
+    filepath
+        .extension()
+        .and_then(|ext| ext.to_str())
+        .map(|ext| ext.to_lowercase())
+        .is_some_and(|ext| VALID_EXTENSIONS.contains(&ext.as_str()))
+}
 
 #[derive(Debug)]
 pub struct ImageFiles {
@@ -32,7 +40,7 @@ impl ImageFiles {
     }
 
     pub fn filter_image_files(mut self) -> Self {
-        self.files.retain(|file| utils::is_image_file(file));
+        self.files.retain(|file| is_image_file(file));
         self
     }
 
