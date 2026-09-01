@@ -28,6 +28,33 @@ fn locate_all_files(dir: &PathBuf) -> anyhow::Result<Vec<PathBuf>> {
     Ok(files)
 }
 
+#[derive(Debug)]
+struct ImageFiles {
+    files: Vec<PathBuf>,
+}
+
+impl ImageFiles {
+    fn new() -> Self {
+        Self { files: Vec::new() }
+    }
+
+    fn locate_all_files(mut self, dir: &PathBuf) -> anyhow::Result<Self> {
+        let entries =
+            fs::read_dir(dir).context(format!("failed to read directory: {}", dir.display()))?;
+
+        for entry in entries {
+            let entry = entry?;
+            let path = entry.path();
+
+            if path.is_file() {
+                self.files.push(path);
+            }
+        }
+
+        Ok(self)
+    }
+}
+
 fn is_image_file(filepath: &Path) -> bool {
     filepath
         .extension()
@@ -89,6 +116,9 @@ fn isolate_duplicate_sha256_hashes(hashes: HashToFiles) -> HashToFiles {
 }
 
 pub fn locate_duplicates(dir: &PathBuf) -> anyhow::Result<Option<HashToFiles>> {
+    let files_obj = ImageFiles::new().locate_all_files(dir)?;
+    println!("{:#?}", files_obj);
+
     let files = locate_all_files(dir).context("Cannot locate image files")?;
     let image_files = isolate_image_files(files);
 
