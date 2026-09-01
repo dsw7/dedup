@@ -1,8 +1,7 @@
+use std::collections::HashMap;
 use std::fs;
 use std::io::{self, Write};
 use std::path::PathBuf;
-
-use crate::types::HashToFiles;
 
 fn read_input_from_stdin(max_index: usize) -> io::Result<String> {
     print!("Input an option [0 to {max_index}]: ");
@@ -74,7 +73,7 @@ fn process_batch_of_duplicates(duplicate_files: &Vec<PathBuf>) {
     }
 }
 
-pub fn delete_duplicate_files(duplicates: HashToFiles) {
+pub fn delete_duplicate_files(duplicates: HashMap<String, Vec<PathBuf>>) {
     for (hash, filenames) in duplicates {
         println!("Found duplicates with hash: {hash}");
         process_batch_of_duplicates(&filenames);
@@ -82,7 +81,7 @@ pub fn delete_duplicate_files(duplicates: HashToFiles) {
     }
 }
 
-pub fn print_duplicate_files(duplicates: HashToFiles) {
+pub fn print_duplicate_files(duplicates: HashMap<String, Vec<PathBuf>>) {
     for (hash, filenames) in duplicates {
         println!("Found duplicates with hash: {hash}");
 
