@@ -117,7 +117,7 @@ fn isolate_duplicate_sha256_hashes(hashes: HashToFiles) -> HashToFiles {
 
 pub fn locate_duplicates(dir: &PathBuf) -> anyhow::Result<Option<HashToFiles>> {
     let files_obj = ImageFiles::new().locate_all_files(dir)?;
-    println!("{:#?}", files_obj);
+    println!("{files_obj:#?}");
 
     let files = locate_all_files(dir).context("Cannot locate image files")?;
     let image_files = isolate_image_files(files);
