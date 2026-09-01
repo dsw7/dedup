@@ -28,6 +28,14 @@ fn locate_all_files(dir: &PathBuf) -> anyhow::Result<Vec<PathBuf>> {
     Ok(files)
 }
 
+fn is_image_file(filepath: &Path) -> bool {
+    filepath
+        .extension()
+        .and_then(|ext| ext.to_str())
+        .map(|ext| ext.to_lowercase())
+        .is_some_and(|ext| VALID_EXTENSIONS.contains(&ext.as_str()))
+}
+
 #[derive(Debug)]
 struct ImageFiles {
     files: Vec<PathBuf>,
@@ -53,14 +61,11 @@ impl ImageFiles {
 
         Ok(self)
     }
-}
 
-fn is_image_file(filepath: &Path) -> bool {
-    filepath
-        .extension()
-        .and_then(|ext| ext.to_str())
-        .map(|ext| ext.to_lowercase())
-        .is_some_and(|ext| VALID_EXTENSIONS.contains(&ext.as_str()))
+    fn filter_image_files(mut self) -> Self {
+        self.files.retain(|file| is_image_file(file));
+        self
+    }
 }
 
 fn isolate_image_files(files: Vec<PathBuf>) -> Vec<PathBuf> {
