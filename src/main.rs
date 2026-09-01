@@ -1,15 +1,16 @@
-mod locate_duplicates;
+mod duplicates;
+mod image_files;
 mod process_duplicates;
 mod types;
 mod utils;
-mod image_files;
 
 use std::path::PathBuf;
 use std::process::ExitCode;
 
 use clap::Parser;
 
-use locate_duplicates::locate_duplicates;
+use duplicates::Duplicates;
+use image_files::ImageFiles;
 use process_duplicates::{delete_duplicate_files, print_duplicate_files};
 
 #[derive(Parser, Debug)]
@@ -29,9 +30,30 @@ struct Cli {
 }
 
 fn process_directory(cli: Cli) -> anyhow::Result<()> {
-    let duplicates = match locate_duplicates(&cli.loc_duplicates)? {
-        Some(hashes) => hashes,
-        None => return Ok(()),
+    let files_in_dir = ImageFiles::new()
+        .locate_all_files(&cli.loc_duplicates)?
+        .filter_image_files()
+        .get_image_files_or_none();
+
+    let image_files = match files_in_dir {
+        Some(files) => files,
+        None => {
+            println!("No image files in directory");
+            return Ok(());
+        }
+    };
+
+    let duplicates = Duplicates::new()
+        .get_image_file_hashes(image_files)
+        .isolate_duplicate_files()
+        .get_duplicate_files_or_none();
+
+    let duplicates = match duplicates {
+        Some(map) => map,
+        None => {
+            println!("No duplicates in directory");
+            return Ok(());
+        }
     };
 
     if cli.dry_run {

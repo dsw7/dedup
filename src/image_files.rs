@@ -1,5 +1,5 @@
-use std::path::PathBuf;
 use std::fs::read_dir;
+use std::path::PathBuf;
 
 use anyhow::Context;
 
