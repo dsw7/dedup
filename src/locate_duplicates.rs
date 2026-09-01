@@ -11,23 +11,6 @@ use crate::types::HashToFiles;
 const VALID_EXTENSIONS: [&str; 7] = ["png", "jpg", "jpeg", "gif", "bmp", "tiff", "webp"];
 const CHUNK_BUF_SIZE: usize = 65536;
 
-fn locate_all_files(dir: &PathBuf) -> anyhow::Result<Vec<PathBuf>> {
-    let entries =
-        fs::read_dir(dir).context(format!("failed to read directory: {}", dir.display()))?;
-
-    let mut files = Vec::new();
-    for entry in entries {
-        let entry = entry?;
-        let path = entry.path();
-
-        if path.is_file() {
-            files.push(path);
-        }
-    }
-
-    Ok(files)
-}
-
 fn is_image_file(filepath: &Path) -> bool {
     filepath
         .extension()
@@ -74,13 +57,6 @@ impl ImageFiles {
             Some(self.files)
         }
     }
-}
-
-fn isolate_image_files(files: Vec<PathBuf>) -> Vec<PathBuf> {
-    files
-        .into_iter()
-        .filter(|file| is_image_file(file))
-        .collect()
 }
 
 fn compute_file_sha256(file: &PathBuf) -> anyhow::Result<String> {
@@ -134,15 +110,13 @@ pub fn locate_duplicates(dir: &PathBuf) -> anyhow::Result<Option<HashToFiles>> {
         .filter_image_files()
         .get_image_files_or_none();
 
-    println!("{image_files:#?}");
-
-    let files = locate_all_files(dir).context("Cannot locate image files")?;
-    let image_files = isolate_image_files(files);
-
-    if image_files.is_empty() {
-        println!("No image files in directory");
-        return Ok(None);
-    }
+    let image_files = match image_files {
+        None => {
+            println!("No image files in directory");
+            return Ok(None);
+        }
+        Some(files) => files,
+    };
 
     let hashes = get_image_file_sha256_hashes(image_files);
     let duplicate_hashes = isolate_duplicate_sha256_hashes(hashes);
