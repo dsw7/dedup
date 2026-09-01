@@ -28,9 +28,7 @@ struct Cli {
     dry_run: bool,
 }
 
-fn process_directory() -> anyhow::Result<()> {
-    let cli = Cli::parse();
-
+fn process_directory(cli: Cli) -> anyhow::Result<()> {
     let duplicates = match locate_duplicates(&cli.loc_duplicates)? {
         Some(hashes) => hashes,
         None => return Ok(()),
@@ -46,7 +44,9 @@ fn process_directory() -> anyhow::Result<()> {
 }
 
 fn main() -> ExitCode {
-    match process_directory() {
+    let cli = Cli::parse();
+
+    match process_directory(cli) {
         Ok(()) => ExitCode::SUCCESS,
         Err(error) => {
             eprintln!("{error:?}");
