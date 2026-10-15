@@ -7,6 +7,7 @@ use std::process::ExitCode;
 use clap::Parser;
 
 use get_duplicates::get_duplicates;
+use process_duplicates::{delete_duplicate_files, print_duplicate_files};
 
 #[derive(Parser, Debug)]
 #[command(
@@ -24,14 +25,22 @@ struct Cli {
     dry_run: bool,
 }
 
+fn process_directory(cli: Cli) -> anyhow::Result<()> {
+    if let Some(hashes) = get_duplicates(cli.loc_duplicates)? {
+        if cli.dry_run {
+            print_duplicate_files(hashes);
+        } else {
+            delete_duplicate_files(hashes);
+        }
+    }
+    Ok(())
+}
+
 fn main() -> ExitCode {
     let cli = Cli::parse();
 
-    match get_duplicates(cli.loc_duplicates, cli.dry_run) {
-        Ok(message) => {
-            println!("{message}");
-            ExitCode::SUCCESS
-        }
+    match process_directory(cli) {
+        Ok(()) => ExitCode::SUCCESS,
         Err(error) => {
             eprintln!("{error:?}");
             ExitCode::FAILURE

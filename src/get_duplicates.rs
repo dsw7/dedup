@@ -7,8 +7,6 @@ use std::path::{Path, PathBuf};
 use anyhow::Context;
 use sha2::{Digest, Sha256};
 
-use crate::process_duplicates::{delete_duplicate_files, print_duplicate_files};
-
 type Hashes = HashMap<String, Vec<PathBuf>>;
 
 const CHUNK_BUF_SIZE: usize = 65536;
@@ -86,26 +84,22 @@ fn isolate_duplicate_hashes(hashes: Hashes) -> Hashes {
         .collect()
 }
 
-pub fn get_duplicates(loc_duplicates: PathBuf, dry_run: bool) -> anyhow::Result<&'static str> {
+pub fn get_duplicates(loc_duplicates: PathBuf) -> anyhow::Result<Option<Hashes>> {
     let all_files = locate_all_files(loc_duplicates)?;
     let image_files = filter_image_files(all_files);
 
     if image_files.is_empty() {
-        return Ok("No image files in directory");
-    }
-
-    let all_hashes = get_image_file_hashes(image_files);
-    let duplicate_hashes = isolate_duplicate_hashes(all_hashes);
-
-    if duplicate_hashes.is_empty() {
-        return Ok("No duplicates in directory");
-    }
-
-    if dry_run {
-        print_duplicate_files(duplicate_hashes);
+        println!("No image files in directory");
+        Ok(None)
     } else {
-        delete_duplicate_files(duplicate_hashes);
-    }
+        let all_hashes = get_image_file_hashes(image_files);
+        let duplicate_hashes = isolate_duplicate_hashes(all_hashes);
 
-    Ok("Complete")
+        if duplicate_hashes.is_empty() {
+            println!("No duplicates in directory");
+            Ok(None)
+        } else {
+            Ok(Some(duplicate_hashes))
+        }
+    }
 }
