@@ -1,12 +1,17 @@
 use std::collections::HashMap;
+use std::fs::File;
 use std::fs::read_dir;
+use std::io::{BufReader, Read};
 use std::path::{Path, PathBuf};
 
 use anyhow::Context;
+use sha2::{Digest, Sha256};
 
-use crate::get_file_hash::compute_file_sha256;
 use crate::process_duplicates::{delete_duplicate_files, print_duplicate_files};
 
+type Hashes = HashMap<String, Vec<PathBuf>>;
+
+const CHUNK_BUF_SIZE: usize = 65536;
 const VALID_EXTENSIONS: [&str; 7] = ["png", "jpg", "jpeg", "gif", "bmp", "tiff", "webp"];
 
 fn locate_all_files(dir: PathBuf) -> anyhow::Result<Vec<PathBuf>> {
@@ -35,7 +40,30 @@ fn filter_image_files(files: Vec<PathBuf>) -> Vec<PathBuf> {
         .collect()
 }
 
-type Hashes = HashMap<String, Vec<PathBuf>>;
+fn compute_file_sha256(file: &PathBuf) -> anyhow::Result<String> {
+    let file_handle =
+        File::open(file).context(format!("failed to open file: {}", file.display()))?;
+
+    let mut reader = BufReader::new(file_handle);
+    let mut hasher = Sha256::new();
+    let mut buffer = [0u8; CHUNK_BUF_SIZE];
+
+    loop {
+        let bytes_read = reader.read(&mut buffer).context(format!(
+            "failed to read bytes from file: {}",
+            file.display()
+        ))?;
+
+        if bytes_read == 0 {
+            break;
+        }
+
+        hasher.update(&buffer[..bytes_read]);
+    }
+
+    let hash_result = hasher.finalize();
+    Ok(format!("{hash_result:x}"))
+}
 
 fn get_image_file_hashes(files: Vec<PathBuf>) -> Hashes {
     let mut hashes: Hashes = HashMap::new();
@@ -58,7 +86,7 @@ fn isolate_duplicate_hashes(hashes: Hashes) -> Hashes {
         .collect()
 }
 
-pub fn delete_duplicates(loc_duplicates: PathBuf, dry_run: bool) -> anyhow::Result<&'static str> {
+pub fn get_duplicates(loc_duplicates: PathBuf, dry_run: bool) -> anyhow::Result<&'static str> {
     let all_files = locate_all_files(loc_duplicates)?;
     let image_files = filter_image_files(all_files);
 

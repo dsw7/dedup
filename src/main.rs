@@ -1,5 +1,4 @@
-mod delete_duplicates;
-mod get_file_hash;
+mod get_duplicates;
 mod process_duplicates;
 
 use std::path::PathBuf;
@@ -7,7 +6,7 @@ use std::process::ExitCode;
 
 use clap::Parser;
 
-use delete_duplicates::delete_duplicates;
+use get_duplicates::get_duplicates;
 
 #[derive(Parser, Debug)]
 #[command(
@@ -28,7 +27,7 @@ struct Cli {
 fn main() -> ExitCode {
     let cli = Cli::parse();
 
-    match delete_duplicates(cli.loc_duplicates, cli.dry_run) {
+    match get_duplicates(cli.loc_duplicates, cli.dry_run) {
         Ok(message) => {
             println!("{message}");
             ExitCode::SUCCESS
