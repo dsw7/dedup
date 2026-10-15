@@ -39,13 +39,12 @@ fn filter_image_files(files: Vec<PathBuf>) -> Vec<PathBuf> {
         .collect()
 }
 
-pub fn delete_duplicates(loc_duplicates: PathBuf, dry_run: bool) -> anyhow::Result<()> {
+pub fn delete_duplicates(loc_duplicates: PathBuf, dry_run: bool) -> anyhow::Result<&'static str> {
     let all_files = locate_all_files(loc_duplicates)?;
     let image_files = filter_image_files(all_files);
 
     if image_files.is_empty() {
-        println!("No image files in directory");
-        return Ok(());
+        return Ok("No image files in directory");
     }
 
     let duplicates = Duplicates::new()
@@ -56,8 +55,7 @@ pub fn delete_duplicates(loc_duplicates: PathBuf, dry_run: bool) -> anyhow::Resu
     let duplicates = match duplicates {
         Some(map) => map,
         None => {
-            println!("No duplicates in directory");
-            return Ok(());
+            return Ok("No duplicates in directory");
         }
     };
 
@@ -67,5 +65,5 @@ pub fn delete_duplicates(loc_duplicates: PathBuf, dry_run: bool) -> anyhow::Resu
         delete_duplicate_files(duplicates);
     }
 
-    Ok(())
+    Ok("Complete")
 }

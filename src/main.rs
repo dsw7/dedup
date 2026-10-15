@@ -29,7 +29,10 @@ fn main() -> ExitCode {
     let cli = Cli::parse();
 
     match delete_duplicates(cli.loc_duplicates, cli.dry_run) {
-        Ok(()) => ExitCode::SUCCESS,
+        Ok(message) => {
+            println!("{message}");
+            ExitCode::SUCCESS
+        }
         Err(error) => {
             eprintln!("{error:?}");
             ExitCode::FAILURE
