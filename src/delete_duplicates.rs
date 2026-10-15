@@ -1,9 +1,10 @@
+use std::collections::HashMap;
 use std::fs::read_dir;
 use std::path::{Path, PathBuf};
 
 use anyhow::Context;
 
-use crate::duplicates::Duplicates;
+use crate::get_file_hash::compute_file_sha256;
 use crate::process_duplicates::{delete_duplicate_files, print_duplicate_files};
 
 const VALID_EXTENSIONS: [&str; 7] = ["png", "jpg", "jpeg", "gif", "bmp", "tiff", "webp"];
@@ -39,6 +40,29 @@ fn filter_image_files(files: Vec<PathBuf>) -> Vec<PathBuf> {
         .collect()
 }
 
+type Hashes = HashMap<String, Vec<PathBuf>>;
+
+fn get_image_file_hashes(files: Vec<PathBuf>) -> Hashes {
+    let mut hashes: Hashes = HashMap::new();
+
+    for file in files {
+        match compute_file_sha256(&file) {
+            Ok(hash) => hashes.entry(hash).or_default().push(file),
+            Err(error) => {
+                eprintln!("Could not get hash for file '{}': {error}", file.display())
+            }
+        }
+    }
+    hashes
+}
+
+fn isolate_duplicate_hashes(hashes: Hashes) -> Hashes {
+    hashes
+        .into_iter()
+        .filter(|(_, files)| files.len() > 1)
+        .collect()
+}
+
 pub fn delete_duplicates(loc_duplicates: PathBuf, dry_run: bool) -> anyhow::Result<&'static str> {
     let all_files = locate_all_files(loc_duplicates)?;
     let image_files = filter_image_files(all_files);
@@ -47,22 +71,17 @@ pub fn delete_duplicates(loc_duplicates: PathBuf, dry_run: bool) -> anyhow::Resu
         return Ok("No image files in directory");
     }
 
-    let duplicates = Duplicates::new()
-        .get_image_file_hashes(image_files)
-        .isolate_duplicate_files()
-        .get_duplicate_files_or_none();
+    let all_hashes = get_image_file_hashes(image_files);
+    let duplicate_hashes = isolate_duplicate_hashes(all_hashes);
 
-    let duplicates = match duplicates {
-        Some(map) => map,
-        None => {
-            return Ok("No duplicates in directory");
-        }
-    };
+    if duplicate_hashes.is_empty() {
+        return Ok("No duplicates in directory");
+    }
 
     if dry_run {
-        print_duplicate_files(duplicates);
+        print_duplicate_files(duplicate_hashes);
     } else {
-        delete_duplicate_files(duplicates);
+        delete_duplicate_files(duplicate_hashes);
     }
 
     Ok("Complete")

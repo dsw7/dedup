@@ -1,5 +1,5 @@
 mod delete_duplicates;
-mod duplicates;
+mod get_file_hash;
 mod process_duplicates;
 
 use std::path::PathBuf;
