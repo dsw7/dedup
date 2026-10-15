@@ -3,38 +3,26 @@ use std::fs;
 use std::io::{self, Write};
 use std::path::PathBuf;
 
-fn read_input_from_stdin(max_index: usize) -> io::Result<String> {
-    print!("Input an option [0 to {max_index}]: ");
-    io::stdout().flush()?;
-
-    let mut input = String::new();
-    io::stdin().read_line(&mut input)?;
-    Ok(input)
-}
-
 fn get_option_from_stdin(max_index: usize) -> usize {
     loop {
-        let input = match read_input_from_stdin(max_index) {
-            Ok(input) => input,
-            Err(error) => {
-                eprintln!("Something went wrong when working with I/O: {error}");
-                continue;
-            }
+        print!("Input an option [0 to {max_index}]: ");
+        io::stdout().flush().ok();
+
+        let mut input = String::new();
+        if io::stdin().read_line(&mut input).is_err() {
+            eprintln!("Something went wrong when working with I/O");
+            continue;
+        }
+
+        let Ok(option) = input.trim().parse::<usize>() else {
+            println!("Not a valid option. Try again");
+            continue;
         };
 
-        let option = match input.trim().parse::<usize>() {
-            Ok(option) => option,
-            Err(_) => {
-                println!("Not a valid option. Try again");
-                continue;
-            }
-        };
-
-        if option > max_index {
-            println!("Option cannot exceed {max_index}. Try again");
-        } else {
+        if option <= max_index {
             return option;
         }
+        println!("Option cannot exceed {max_index}. Try again");
     }
 }
 
