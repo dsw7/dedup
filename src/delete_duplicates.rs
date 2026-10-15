@@ -11,17 +11,12 @@ const VALID_EXTENSIONS: [&str; 7] = ["png", "jpg", "jpeg", "gif", "bmp", "tiff",
 
 fn locate_all_files(dir: PathBuf) -> anyhow::Result<Vec<PathBuf>> {
     let entries = read_dir(&dir).context(format!("failed to read directory: {}", dir.display()))?;
-    let mut files = Vec::new();
 
-    for entry in entries {
-        let entry = entry?;
-        let path = entry.path();
-
-        if path.is_file() {
-            files.push(path);
-        }
-    }
-
+    let files = entries
+        .filter_map(Result::ok)
+        .map(|entry| entry.path())
+        .filter(|path| path.is_file())
+        .collect();
     Ok(files)
 }
 
