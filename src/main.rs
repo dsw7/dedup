@@ -14,7 +14,7 @@ use clap::Parser;
 use get_duplicates::get_duplicates;
 use process_duplicates::{delete_duplicate_files, print_duplicate_files};
 
-#[derive(Parser, Debug)]
+#[derive(Parser)]
 #[command(
     name = "dedup",
     version,
