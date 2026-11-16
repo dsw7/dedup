@@ -28,10 +28,7 @@ def group_files_by_size(files: list[Path]) -> GroupsBySize:
     groups = defaultdict(list)
 
     for filepath in files:
-        try:
-            groups[filepath.stat().st_size].append(filepath)
-        except OSError:
-            continue
+        groups[filepath.stat().st_size].append(filepath)
 
     return groups
 
@@ -54,11 +51,8 @@ def group_files_by_hash(groups_by_size: GroupsBySize) -> GroupsByHash:
             continue
 
         for filepath in paths:
-            try:
-                file_hash = get_sha256_file_hash(filepath)
-                groups[file_hash].append(filepath)
-            except OSError:
-                continue
+            file_hash = get_sha256_file_hash(filepath)
+            groups[file_hash].append(filepath)
 
     return groups
 
@@ -81,16 +75,13 @@ class Duplicates:
     def __len__(self) -> int:
         return len(self.file_paths)
 
-    def keep_file(self, idx_to_keep: int) -> None:
+    def delete_all_except(self, idx_to_keep: int) -> None:
         for idx, filepath in enumerate(self.file_paths):
             if idx == idx_to_keep:
                 print(f" (+) {filepath}")
             else:
-                try:
-                    filepath.unlink()
-                    print(f" (-) {filepath}")
-                except OSError as e:
-                    print(f" (!) failed to delete {filepath}: {e}")
+                filepath.unlink()
+                print(f" (-) {filepath}")
 
 
 def delete_duplicate_files(duplicates: Duplicates) -> None:
@@ -108,7 +99,7 @@ def delete_duplicate_files(duplicates: Duplicates) -> None:
 
         print(f"enter a valid integer between 0 and {len(duplicates) - 1}")
 
-    duplicates.keep_file(idx_to_keep)
+    duplicates.delete_all_except(idx_to_keep)
 
 
 def loop_over_duplicates(duplicates: list[Duplicates]) -> None:
@@ -174,6 +165,8 @@ def main() -> None:
         process_directory(target_dir=Path(args.path), dry_run=args.dry_run)
     except KeyboardInterrupt:
         print("\nprocess was manually aborted!")
+    except OSError as e:
+        raise SystemExit(f"an error occurred: {e}") from e
 
 
 if __name__ == "__main__":
