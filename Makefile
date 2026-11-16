@@ -1,9 +1,6 @@
-.PHONY = lint install
+.PHONY = py
 
-lint:
-	@cargo fmt
-	@cargo check
-	@cargo clippy
-
-install:
-	@cargo install --path . --root ~/.local
+py:
+	@black dedup.py
+	@pylint --exit-zero dedup.py
+	@mypy --strict dedup.py

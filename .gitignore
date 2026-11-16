@@ -1,4 +1,9 @@
-/target
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
 
-# Claude
-**/.claude/settings.local.json
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
