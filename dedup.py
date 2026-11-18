@@ -108,6 +108,7 @@ def loop_over_duplicates(duplicates: list[Duplicates]) -> None:
     for u, duplicate_files in enumerate(duplicates, 1):
         print(f"({u}) found duplicates with hash: {duplicate_files.file_hash}")
         delete_duplicate_files(duplicate_files)
+        print()
 
 
 def print_duplicate_files(duplicates: list[Duplicates]) -> None:
